@@ -12,7 +12,7 @@ const config: Config = {
   url: 'https://smartforms.csiro.au',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/docs',
+  baseUrl: '/docs/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -20,7 +20,9 @@ const config: Config = {
   projectName: '', // Usually your repo name.\
 
   onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenMarkdownLinks: 'throw',
+
+  trailingSlash: false,
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -35,11 +37,12 @@ const config: Config = {
       'classic',
       {
         docs: {
+          showLastUpdateTime: true,
           routeBasePath: '/',
-          sidebarPath: './sidebars.ts',
+          sidebarPath: './sidebars.ts'
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/aehrc/smart-forms/'
+          // editUrl: 'https://github.com/aehrc/smart-forms/'
         },
         theme: {
           customCss: './src/css/custom.css'
@@ -53,7 +56,6 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/logo-sf.svg',
     navbar: {
-      title: 'Smart Forms',
       logo: {
         alt: 'Smart Forms',
         src: 'img/logo-sf.svg',
@@ -152,6 +154,28 @@ const config: Config = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Commonwealth Scientific and Industrial Research
   - Organisation (CSIRO).`
+    },
+    // Refer to https://docusaurus.io/docs/search#connecting-algolia
+    algolia: {
+      // The application ID provided by Algolia
+      appId: 'SL7YXI16RH',
+
+      // Public API key: it is safe to commit it
+      apiKey: 'a4c401a7bac65bc81b7dd7efe958b951',
+
+      indexName: 'smartforms-csiro',
+
+      // Optional: see doc section below
+      contextualSearch: true,
+
+      // Optional: Algolia search parameters
+      searchParameters: {},
+
+      // Optional: path for search page that enabled by default (`false` to disable it)
+      searchPagePath: 'search',
+
+      // Optional: whether the insights feature is enabled or not on Docsearch (`false` by default)
+      insights: false
     },
     prism: {
       theme: prismThemes.github,
