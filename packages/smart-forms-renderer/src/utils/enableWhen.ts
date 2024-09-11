@@ -43,14 +43,15 @@ export function createEnableWhenLinkedQuestions(enableWhenItems: EnableWhenItems
 
   for (const items of [singleItems, repeatItems]) {
     for (const linkId in items) {
-      items[linkId].linked.forEach((linkedItem) => {
+      items[linkId]?.linked.forEach((linkedItem) => {
         const linkQId = linkedItem.enableWhen.question;
-        if (!linkedQuestionsMap[linkQId]) {
-          linkedQuestionsMap[linkQId] = [];
+        let linkedQuestions = linkedQuestionsMap[linkQId];
+        if (!linkedQuestions) {
+          linkedQuestions = [];
         }
 
-        if (!linkedQuestionsMap[linkQId].includes(linkId)) {
-          linkedQuestionsMap[linkQId].push(linkId);
+        if (!linkedQuestions.includes(linkId)) {
+          linkedQuestions.push(linkId);
         }
       });
     }
@@ -179,20 +180,25 @@ export function mutateRepeatEnableWhenItemInstances(
   const { repeatItems } = items;
 
   for (const linkId in repeatItems) {
-    for (const linkedItem of repeatItems[linkId].linked) {
+    const repeatItem = repeatItems[linkId];
+    if (!repeatItem) {
+      continue;
+    }
+
+    for (const linkedItem of repeatItem.linked) {
       if (linkedItem.parentLinkId !== parentRepeatGroupLinkId) {
         continue;
       }
 
       if (actionType === 'add') {
         linkedItem.answers.splice(parentRepeatGroupIndex, 0);
-        repeatItems[linkId].enabledIndexes[parentRepeatGroupIndex] = checkItemIsEnabledRepeat(
-          repeatItems[linkId],
+        repeatItem.enabledIndexes[parentRepeatGroupIndex] = checkItemIsEnabledRepeat(
+          repeatItem,
           parentRepeatGroupIndex
         );
       } else if (actionType === 'remove') {
         linkedItem.answers.splice(parentRepeatGroupIndex, 1);
-        repeatItems[linkId].enabledIndexes.splice(parentRepeatGroupIndex, 1);
+        repeatItem.enabledIndexes.splice(parentRepeatGroupIndex, 1);
       }
     }
   }
@@ -262,6 +268,10 @@ export function setInitialAnswers(
   if (initialAnswers) {
     for (const linkId in initialAnswers) {
       const linkedQuestions = linkedQuestionsMap[linkId];
+      if (!linkedQuestions) {
+        continue;
+      }
+
       const newAnswer = initialAnswers[linkId];
 
       updatedItems = updateEnableWhenItemAnswer(
@@ -293,26 +303,29 @@ export function updateEnableWhenItemAnswer(
 
   for (const linkedQuestion of linkedQuestions) {
     // Linked question is in single items
-    if (singleItems[linkedQuestion]) {
+    const singleItem = singleItems[linkedQuestion];
+    if (singleItem) {
       // Update modified linked answer
-      singleItems[linkedQuestion].linked.forEach((linkedItem) => {
+      singleItem.linked.forEach((linkedItem) => {
         if (linkedItem.enableWhen.question === linkId) {
           linkedItem.answer = newAnswer ?? undefined;
         }
       });
 
       // Update enabled status of modified enableWhenItem
-      singleItems[linkedQuestion].isEnabled = checkItemIsEnabledSingle(singleItems[linkedQuestion]);
+      singleItem.isEnabled = checkItemIsEnabledSingle(singleItem);
       continue;
     }
 
     // Linked question is in repeat items
-    if (repeatItems[linkedQuestion] && parentRepeatGroupIndex !== null) {
+    const repeatItem = repeatItems[linkedQuestion];
+    if (repeatItem && parentRepeatGroupIndex !== null) {
       // Update modified linked answer
-      repeatItems[linkedQuestion].linked.forEach((linkedItem) => {
+      repeatItem.linked.forEach((linkedItem) => {
         if (linkedItem.enableWhen.question === linkId) {
           if (newAnswer) {
-            linkedItem.answers[parentRepeatGroupIndex] = newAnswer[0] ?? undefined;
+            linkedItem.answers[parentRepeatGroupIndex] =
+              newAnswer[0] as QuestionnaireResponseItemAnswer;
           } else {
             delete linkedItem.answers[parentRepeatGroupIndex];
           }
@@ -320,8 +333,8 @@ export function updateEnableWhenItemAnswer(
       });
 
       // Update enabled status of modified enableWhenItem
-      repeatItems[linkedQuestion].enabledIndexes[parentRepeatGroupIndex] = checkItemIsEnabledRepeat(
-        repeatItems[linkedQuestion],
+      repeatItem.enabledIndexes[parentRepeatGroupIndex] = checkItemIsEnabledRepeat(
+        repeatItem,
         parentRepeatGroupIndex
       );
     }
@@ -429,27 +442,33 @@ function initialiseUnansweredBooleans(items: EnableWhenItems): EnableWhenItems {
 
   // Initialise unanswered booleans for enableWhen single items
   for (const linkId in singleItems) {
-    const checkedIsEnabledItems = singleItems[linkId].linked.map((linkedItem) =>
+    const singleItem = singleItems[linkId];
+    if (!singleItem) {
+      continue;
+    }
+
+    const checkedIsEnabledItems = singleItem.linked.map((linkedItem) =>
       evaluateNonExistentAnswers(linkedItem.enableWhen)
     );
 
-    singleItems[linkId].isEnabled = evaluateEnableBehaviour(
+    singleItem.isEnabled = evaluateEnableBehaviour(
       checkedIsEnabledItems,
-      singleItems[linkId].enableBehavior
+      singleItem.enableBehavior
     );
   }
 
   // Initialise unanswered booleans for enableWhen repeat items
   for (const linkId in repeatItems) {
-    const checkedIsEnabledItems = repeatItems[linkId].linked.map((linkedItem) =>
+    const repeatItem = repeatItems[linkId];
+    if (!repeatItem) {
+      continue;
+    }
+    const checkedIsEnabledItems = repeatItem.linked.map((linkedItem) =>
       evaluateNonExistentAnswers(linkedItem.enableWhen)
     );
 
-    const isEnabled = evaluateEnableBehaviour(
-      checkedIsEnabledItems,
-      repeatItems[linkId].enableBehavior
-    );
-    repeatItems[linkId].enabledIndexes = repeatItems[linkId].enabledIndexes.map(() => isEnabled);
+    const isEnabled = evaluateEnableBehaviour(checkedIsEnabledItems, repeatItem.enableBehavior);
+    repeatItem.enabledIndexes = repeatItem.enabledIndexes.map(() => isEnabled);
   }
 
   return items;

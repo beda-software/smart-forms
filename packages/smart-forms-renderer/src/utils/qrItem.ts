@@ -45,7 +45,7 @@ export function removeNoAnswerQrItem(
   }
 
   // remove starting or trailing whitespace
-  if (qrItem['answer'] && qrItem['answer'][0]['valueString']) {
+  if (qrItem['answer'] && qrItem['answer'][0]?.['valueString']) {
     qrItem['answer'][0]['valueString'] = qrItem['answer'][0]['valueString'].trim();
   }
 
@@ -114,11 +114,20 @@ export function updateQrItemsInGroup(
       return;
     }
 
-    // Get actual sequence index of qrItem within qrGroup
     const newQrItemIndex = qItemsIndexMap[newQrItem.linkId];
+    if (!newQrItemIndex) {
+      return;
+    }
+
+    // Get actual sequence index of qrItem within qrGroup
     for (let i = 0; i < qrItemsRealIndexArr.length; i++) {
+      const currentRealIndex = qrItemsRealIndexArr[i];
+      if (!currentRealIndex) {
+        continue;
+      }
+
       // Add qrItem at the end of qrGroup if it is larger than the other indexes
-      if (newQrItemIndex > qrItemsRealIndexArr[i]) {
+      if (newQrItemIndex > currentRealIndex) {
         if (i === qrItemsRealIndexArr.length - 1) {
           qrItems.push(newQrItem);
         }
@@ -126,7 +135,7 @@ export function updateQrItemsInGroup(
       }
 
       // Replace or delete qrItem at its supposed position if its index is already present within qrGroup
-      if (newQrItemIndex === qrItemsRealIndexArr[i]) {
+      if (newQrItemIndex === currentRealIndex) {
         // newQrItem has answer value
         if (newQrItem.item?.length || newQrItem.answer?.length) {
           qrItems[i] = newQrItem;
@@ -139,7 +148,7 @@ export function updateQrItemsInGroup(
       }
 
       // Add qrItem at its supposed position if its index is not present within qrGroup
-      if (newQrItemIndex < qrItemsRealIndexArr[i]) {
+      if (newQrItemIndex < currentRealIndex) {
         qrItems.splice(i, 0, newQrItem);
         break;
       }
@@ -155,9 +164,18 @@ export function updateQrItemsInGroup(
 
     // Get actual sequence index of qrItems within qrGroup
     const newQrItemIndex = qItemsIndexMap[newQrRepeatGroup.linkId];
+    if (!newQrItemIndex) {
+      return;
+    }
+
     for (let i = 0; i < qrItemsRealIndexArr.length; i++) {
+      const currentRealIndex = qrItemsRealIndexArr[i];
+      if (!currentRealIndex) {
+        continue;
+      }
+
       // Add qrItem at the end of qrGroup if it is larger than the other indexes
-      if (newQrItemIndex > qrItemsRealIndexArr[i]) {
+      if (newQrItemIndex > currentRealIndex) {
         if (i === qrItemsRealIndexArr.length - 1) {
           qrItems.push(...newQrItems);
         }
@@ -165,7 +183,7 @@ export function updateQrItemsInGroup(
       }
 
       // Replace or delete qrItem at its supposed position if its index is already present within qrGroup
-      if (newQrItemIndex === qrItemsRealIndexArr[i]) {
+      if (newQrItemIndex === currentRealIndex) {
         // Get number of repeatGroupItems that has the same linkId present in qrGroup
         let repeatGroupItemCount = 0;
         while (newQrItemIndex === qrItemsRealIndexArr[i + repeatGroupItemCount]) {
@@ -175,7 +193,7 @@ export function updateQrItemsInGroup(
         // Replace each repeat group qrItem with their new counterparts
         if (newQrItems.length === repeatGroupItemCount) {
           for (let j = 0; j < newQrItems.length; j++) {
-            qrItems[i + j] = newQrItems[j];
+            qrItems[i + j] = newQrItems[j] as QuestionnaireResponseItem;
           }
           break;
         }
@@ -185,9 +203,9 @@ export function updateQrItemsInGroup(
           // followed by adding an extra newQrItem behind the newly replaced qrItems
           for (let j = 0, k = repeatGroupItemCount; j < newQrItems.length; j++, k--) {
             if (k > 0) {
-              qrItems[i + j] = newQrItems[j];
+              qrItems[i + j] = newQrItems[j] as QuestionnaireResponseItem;
             } else {
-              qrItems.splice(i + j, 0, newQrItems[j]);
+              qrItems.splice(i + j, 0, newQrItems[j] as QuestionnaireResponseItem);
             }
           }
           break;
@@ -198,7 +216,7 @@ export function updateQrItemsInGroup(
           // followed by deleting the last newQrItem which wasn't replaced
           for (let j = 0; j < repeatGroupItemCount; j++) {
             if (j <= newQrItems.length - 1) {
-              qrItems[i + j] = newQrItems[j];
+              qrItems[i + j] = newQrItems[j] as QuestionnaireResponseItem;
             } else {
               qrItems.splice(i + j, 1);
             }
@@ -208,9 +226,9 @@ export function updateQrItemsInGroup(
       }
 
       // Add qrItem at its supposed position if its index is not present within qrGroup
-      if (newQrItemIndex < qrItemsRealIndexArr[i]) {
+      if (newQrItemIndex < currentRealIndex) {
         for (let j = 0; j < newQrItems.length; j++) {
-          qrItems.splice(i + j, 0, newQrItems[j]);
+          qrItems.splice(i + j, 0, newQrItems[j] as QuestionnaireResponseItem);
         }
         break;
       }

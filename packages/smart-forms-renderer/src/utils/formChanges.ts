@@ -107,7 +107,7 @@ function getItemChange(
 
   const itemType = itemTypes[diffItem.linkId];
   const operation = answerDiffOperationSwitcher(operator);
-  if (operation) {
+  if (operation && itemType) {
     changedItems[diffItem.linkId] = {
       linkId: diffItem.linkId,
       itemType: itemType,

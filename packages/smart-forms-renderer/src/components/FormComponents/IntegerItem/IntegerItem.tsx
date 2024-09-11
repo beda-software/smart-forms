@@ -55,15 +55,15 @@ function IntegerItem(props: IntegerItemProps) {
   const { displayUnit, displayPrompt, entryFormat } = useRenderingExtensions(qItem);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   let valueInteger = 0;
   let initialInput = '';
   if (qrItem?.answer) {
-    if (qrItem?.answer[0].valueInteger) {
+    if (qrItem?.answer[0]?.valueInteger) {
       valueInteger = qrItem.answer[0].valueInteger;
     }
 
-    if (qrItem?.answer[0].valueDecimal) {
+    if (qrItem?.answer[0]?.valueDecimal) {
       valueInteger = Math.round(qrItem.answer[0].valueDecimal);
     }
 

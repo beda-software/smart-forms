@@ -44,7 +44,7 @@ const FormBodyTabList = memo(function FormBodyTabList(props: FormBodyTabListProp
   return (
     <TransitionGroup>
       {topLevelItems.map((qItem, i) => {
-        const contextDisplayItems = allContextDisplayItems[i];
+        const contextDisplayItems = allContextDisplayItems[i] ?? [];
         const isTab = !!tabs[qItem.linkId];
 
         if (

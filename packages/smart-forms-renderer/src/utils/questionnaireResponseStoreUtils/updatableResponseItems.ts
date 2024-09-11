@@ -53,7 +53,7 @@ function fillQuestionnaireResponseItemMap(
 ) {
   // linkId already exists in questionnaireResponseItemMap, it would be a repeat group
   if (qrItem.linkId in questionnaireResponseItemMap) {
-    questionnaireResponseItemMap[qrItem.linkId].push(qrItem);
+    questionnaireResponseItemMap[qrItem.linkId]?.push(qrItem);
   }
   // Add item to questionnaireResponseItemMap
   else {

@@ -47,47 +47,47 @@ function useCodingCalculatedExpression(
         (exp) => exp.from === 'item'
       );
 
-      if (!calcExpression) {
-        return;
-      }
+      if (calcExpression) {
+        // only update if calculated value is different from current value
+        if (
+          calcExpression.value !== valueInString &&
+          (typeof calcExpression.value === 'string' ||
+            typeof calcExpression.value === 'number' ||
+            typeof calcExpression.value === 'object' ||
+            calcExpression.value === null)
+        ) {
+          // update ui to show calculated value changes
+          setCalcExpUpdated(true);
+          const timeoutId = setTimeout(() => {
+            setCalcExpUpdated(false);
+          }, 500);
 
-      // only update if calculated value is different from current value
-      if (
-        calcExpression.value !== valueInString &&
-        (typeof calcExpression.value === 'string' ||
-          typeof calcExpression.value === 'number' ||
-          typeof calcExpression.value === 'object' ||
-          calcExpression.value === null)
-      ) {
-        // update ui to show calculated value changes
-        setCalcExpUpdated(true);
-        const timeoutId = setTimeout(() => {
-          setCalcExpUpdated(false);
-        }, 500);
-
-        // calculatedExpression value is null
-        if (calcExpression.value === null) {
-          onChangeByCalcExpressionNull();
-          return () => clearTimeout(timeoutId);
-        }
-
-        // calculatedExpression value is object, check if it is a Coding object
-        if (typeof calcExpression.value === 'object' && objectIsCoding(calcExpression.value)) {
-          if (calcExpression.value.code) {
-            onChangeByCalcExpressionString(calcExpression.value.code);
+          // calculatedExpression value is null
+          if (calcExpression.value === null) {
+            onChangeByCalcExpressionNull();
             return () => clearTimeout(timeoutId);
           }
+
+          // calculatedExpression value is object, check if it is a Coding object
+          if (typeof calcExpression.value === 'object' && objectIsCoding(calcExpression.value)) {
+            if (calcExpression.value.code) {
+              onChangeByCalcExpressionString(calcExpression.value.code);
+              return () => clearTimeout(timeoutId);
+            }
+          }
+
+          // calculatedExpression value is a string or number
+          const newValueString =
+            typeof calcExpression.value === 'string'
+              ? calcExpression.value
+              : calcExpression.value.toString();
+
+          onChangeByCalcExpressionString(newValueString);
+          return () => clearTimeout(timeoutId);
         }
-
-        // calculatedExpression value is a string or number
-        const newValueString =
-          typeof calcExpression.value === 'string'
-            ? calcExpression.value
-            : calcExpression.value.toString();
-
-        onChangeByCalcExpressionString(newValueString);
-        return () => clearTimeout(timeoutId);
       }
+
+      return () => {};
     },
     // Only trigger this effect if calculatedExpression of item changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

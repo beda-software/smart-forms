@@ -49,12 +49,12 @@ function ChoiceAutocompleteItem(props: ChoiceAutocompleteItemProps) {
   const onFocusLinkId = useQuestionnaireStore.use.onFocusLinkId();
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   const qrChoice = qrItem ?? createEmptyQrItem(qItem, answerKey);
 
   let valueCoding: Coding | undefined;
   if (qrChoice.answer) {
-    valueCoding = qrChoice.answer[0].valueCoding;
+    valueCoding = qrChoice.answer[0]?.valueCoding;
   }
 
   const readOnly = useReadOnly(qItem, parentIsReadOnly);

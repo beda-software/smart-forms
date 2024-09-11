@@ -65,8 +65,9 @@ function RepeatGroup(props: RepeatGroupProps) {
   function handleAnswerChange(newQrItem: QuestionnaireResponseItem, index: number) {
     const updatedRepeatGroups = [...repeatGroups];
 
-    if (newQrItem.item) {
-      updatedRepeatGroups[index].qrItem = {
+    const updatedRepeatGroup = updatedRepeatGroups[index];
+    if (newQrItem.item && updatedRepeatGroup) {
+      updatedRepeatGroup.qrItem = {
         linkId: newQrItem.linkId,
         text: newQrItem.text,
         item: newQrItem.item

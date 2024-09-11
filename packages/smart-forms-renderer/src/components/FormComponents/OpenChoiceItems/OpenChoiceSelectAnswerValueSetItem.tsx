@@ -48,12 +48,12 @@ function OpenChoiceSelectAnswerValueSetItem(props: OpenChoiceSelectAnswerValueSe
   const readOnly = useReadOnly(qItem, parentIsReadOnly);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   const qrOpenChoice = qrItem ?? createEmptyQrItem(qItem, answerKey);
 
   let valueSelect: Coding | null = null;
   if (qrOpenChoice['answer']) {
-    valueSelect = qrOpenChoice['answer'][0].valueCoding ?? null;
+    valueSelect = qrOpenChoice['answer'][0]?.valueCoding ?? null;
   }
 
   // Get codings/options from valueSet

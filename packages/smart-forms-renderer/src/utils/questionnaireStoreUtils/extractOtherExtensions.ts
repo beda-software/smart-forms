@@ -391,9 +391,11 @@ function initialiseEnableWhenExpressionRepeat(
 
   // Use the last linkId as the linkedItem, and get it's repeat group parent item's linkId
   // If both parent linkId matches, this enableWhenExpression is a repeat enableWhenExpression
-  const linkedParentItem = getRepeatGroupParentItem(questionnaire, lastLinkIdMatch);
-  if (parentLinkId === linkedParentItem?.linkId) {
-    return enableWhenExpression;
+  if (lastLinkIdMatch) {
+    const linkedParentItem = getRepeatGroupParentItem(questionnaire, lastLinkIdMatch);
+    if (parentLinkId === linkedParentItem?.linkId) {
+      return enableWhenExpression;
+    }
   }
 
   return null;

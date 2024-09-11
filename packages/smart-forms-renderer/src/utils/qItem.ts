@@ -46,22 +46,22 @@ export function isHiddenByEnableWhen(params: isHiddenByEnableWhensParams): boole
   // Check enableWhen items
   const { singleItems, repeatItems } = enableWhenItems;
   if (singleItems[linkId]) {
-    return !singleItems[linkId].isEnabled;
+    return !singleItems[linkId]?.isEnabled;
   }
 
   if (repeatItems[linkId] && parentRepeatGroupIndex !== undefined) {
-    return !repeatItems[linkId].enabledIndexes[parentRepeatGroupIndex];
+    return !repeatItems[linkId]?.enabledIndexes[parentRepeatGroupIndex];
   }
 
   // Check enableWhenExpressions
   const { singleExpressions, repeatExpressions } = enableWhenExpressions;
 
   if (repeatExpressions[linkId] && parentRepeatGroupIndex !== undefined) {
-    return !repeatExpressions[linkId].enabledIndexes[parentRepeatGroupIndex];
+    return !repeatExpressions[linkId]?.enabledIndexes[parentRepeatGroupIndex];
   }
 
   if (singleExpressions[linkId]) {
-    return !enableWhenExpressions.singleExpressions[linkId].isEnabled;
+    return !enableWhenExpressions.singleExpressions[linkId]?.isEnabled;
   }
 
   return false;

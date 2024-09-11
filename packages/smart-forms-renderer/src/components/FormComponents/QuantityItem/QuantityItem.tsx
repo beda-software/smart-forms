@@ -62,14 +62,14 @@ function QuantityItem(props: QuantityItemProps) {
   );
 
   // Init inputs
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   let valueQuantity: Quantity = {};
   let initialValueInput = '';
   let initialComparatorInput: Quantity['comparator'] | null = null;
   let initialUnitInput: QuestionnaireItemAnswerOption | null =
     quantityUnit ?? unitOptions?.at(0) ?? null;
   if (qrItem?.answer) {
-    if (qrItem?.answer[0].valueQuantity) {
+    if (qrItem?.answer[0]?.valueQuantity) {
       valueQuantity = qrItem.answer[0].valueQuantity;
     }
 

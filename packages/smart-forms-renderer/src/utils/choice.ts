@@ -144,12 +144,14 @@ export function getQrChoiceValue(
 ): string | null {
   if (qrChoice.answer && qrChoice.answer.length > 0) {
     const answer = qrChoice['answer'][0];
-    if (answer['valueCoding']) {
-      return answer.valueCoding.code ? answer.valueCoding.code : '';
-    } else if (answer['valueString'] !== undefined) {
-      return answer.valueString;
-    } else if (answer['valueInteger']) {
-      return answer.valueInteger.toString();
+    if (answer) {
+      if (answer['valueCoding']) {
+        return answer.valueCoding.code ? answer.valueCoding.code : '';
+      } else if (answer['valueString'] !== undefined) {
+        return answer.valueString;
+      } else if (answer['valueInteger']) {
+        return answer.valueInteger.toString();
+      }
     }
   }
 

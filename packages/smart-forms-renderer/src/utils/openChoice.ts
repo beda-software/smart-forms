@@ -58,7 +58,7 @@ export function updateOpenLabelAnswer(
     // Only remove the last one if there are multiple matches, in case open label value is same as an option
     if (matchedIndexes.length > 0) {
       const lastMatchedIndex = matchedIndexes[matchedIndexes.length - 1];
-      const newAnswers = answers.filter((answer, index) => index !== lastMatchedIndex);
+      const newAnswers = answers.filter((_, index) => index !== lastMatchedIndex);
 
       const newAnswersWithKey = newAnswers.map((answer) => ({ ...answer, id: answerKey }));
       return {

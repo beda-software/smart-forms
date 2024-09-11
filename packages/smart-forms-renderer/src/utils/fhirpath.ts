@@ -112,8 +112,11 @@ export function createFhirPathContext(
   for (const linkId in questionnaireResponseItemMap) {
     // For non-repeat groups, the same linkId will have only one item
     // For repeat groups, the same linkId will have multiple items
-    for (const qrItem of questionnaireResponseItemMap[linkId]) {
-      fhirPathContext = evaluateLinkIdVariables(qrItem, variablesFhirPath, fhirPathContext);
+    const qrItems = questionnaireResponseItemMap[linkId];
+    if (qrItems) {
+      for (const qrItem of qrItems) {
+        fhirPathContext = evaluateLinkIdVariables(qrItem, variablesFhirPath, fhirPathContext);
+      }
     }
   }
 

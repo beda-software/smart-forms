@@ -82,6 +82,9 @@ export function evaluateInitialCalculatedExpressions(
 
   for (const linkId in initialCalculatedExpressions) {
     const itemCalcExpressions = calculatedExpressions[linkId];
+    if (!itemCalcExpressions) {
+      continue;
+    }
 
     for (const calcExpression of itemCalcExpressions) {
       try {
@@ -124,6 +127,9 @@ export function evaluateCalculatedExpressions(
   let isUpdated = false;
   for (const linkId in calculatedExpressions) {
     const itemCalcExpressions = calculatedExpressions[linkId];
+    if (!itemCalcExpressions) {
+      continue;
+    }
 
     for (const calcExpression of itemCalcExpressions) {
       try {
@@ -168,11 +174,11 @@ export function initialiseCalculatedExpressionValues(
   // Filter calculated expressions, only preserve key-value pairs with values
   const calculatedExpressionsWithValues: Record<string, CalculatedExpression[]> = {};
   for (const linkId in calculatedExpressions) {
-    const itemCalcExpressionsWithValues = calculatedExpressions[linkId].filter(
+    const itemCalcExpressionsWithValues = calculatedExpressions[linkId]?.filter(
       (calcExpression) => calcExpression.value !== undefined
     );
 
-    if (itemCalcExpressionsWithValues.length > 0) {
+    if (itemCalcExpressionsWithValues && itemCalcExpressionsWithValues.length > 0) {
       calculatedExpressionsWithValues[linkId] = itemCalcExpressionsWithValues;
     }
   }

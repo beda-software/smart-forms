@@ -49,7 +49,7 @@ function BooleanItem(props: BooleanItemProps) {
   const readOnly = useReadOnly(qItem, parentIsReadOnly);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   let valueBoolean: boolean | undefined = undefined;
   if (qrItem?.answer?.[0]?.valueBoolean !== undefined) {
     valueBoolean = qrItem.answer[0].valueBoolean;

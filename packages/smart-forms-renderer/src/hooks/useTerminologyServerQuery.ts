@@ -51,8 +51,9 @@ function useTerminologyServerQuery(
     }
 
     // attempt to get url from contained value sets when loading questionnaire
-    if (processedValueSetUrls[answerValueSetUrl]) {
-      answerValueSetUrl = processedValueSetUrls[answerValueSetUrl];
+    const processedValueSetUrl = processedValueSetUrls[answerValueSetUrl];
+    if (processedValueSetUrl) {
+      answerValueSetUrl = processedValueSetUrl;
     }
 
     const urlWithTrailingAmpersand =

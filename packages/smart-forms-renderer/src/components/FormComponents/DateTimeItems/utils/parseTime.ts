@@ -33,7 +33,7 @@ export function getTimeSegments(timeInput: string): {
     return { hourSegment: null, minuteSegment: null };
   }
 
-  return { hourSegment: timeInputSegments[0], minuteSegment: timeInputSegments[1] };
+  return { hourSegment: timeInputSegments[0] ?? null, minuteSegment: timeInputSegments[1] ?? null };
 }
 
 export function validateTimeInput(
@@ -102,7 +102,7 @@ export function parseDateTimeToDisplayTime(dateTime: Dayjs | null): {
 
 function convertTo12HourFormat(timeInput: string) {
   const timeSegments = timeInput.split(':');
-  const hour = parseInt(timeSegments[0], 10);
+  const hour = parseInt(timeSegments[0] ?? '', 10) || 0;
   if (hour >= 12) {
     timeSegments[0] = `${hour - 12}`;
   }

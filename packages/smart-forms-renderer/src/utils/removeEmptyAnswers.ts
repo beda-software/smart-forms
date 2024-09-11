@@ -133,11 +133,18 @@ function removeEmptyAnswersFromItemRecursive(
         qItemIndex < qItems.length || qrItemIndex < qrItems.length;
         qItemIndex++
       ) {
+        const qItemCurrent = qItems[qItemIndex];
+        const qrItemCurrent = qrItems[qrItemIndex];
+
+        if (!qItemCurrent || !qrItemCurrent) {
+          continue;
+        }
+
         // Save qrItem if linkIds of current qItem and qrItem are the same
-        if (qrItems[qrItemIndex] && qItems[qItemIndex].linkId === qrItems[qrItemIndex].linkId) {
+        if (qrItems[qrItemIndex] && qItemCurrent.linkId === qrItemCurrent.linkId) {
           const newQrItem = removeEmptyAnswersFromItemRecursive({
-            qItem: qItems[qItemIndex],
-            qrItem: qrItems[qrItemIndex],
+            qItem: qItemCurrent,
+            qrItem: qrItemCurrent,
             enableWhenIsActivated,
             enableWhenItems,
             enableWhenExpressions
@@ -149,9 +156,11 @@ function removeEmptyAnswersFromItemRecursive(
 
           // Decrement qItem index if the next qrItem is an answer from a repeatGroup
           // Essentially persisting the current qItem linked to be matched up with the next qrItem linkId
+          const qrItemNext = qrItems[qrItemIndex + 1];
           if (
             qrItems.length !== qrItemIndex + 1 &&
-            qrItems[qrItemIndex].linkId === qrItems[qrItemIndex + 1].linkId
+            qrItemNext &&
+            qrItemCurrent.linkId === qrItemNext.linkId
           ) {
             qItemIndex--;
           }

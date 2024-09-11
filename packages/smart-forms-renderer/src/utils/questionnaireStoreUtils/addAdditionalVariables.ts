@@ -29,7 +29,7 @@ export function addAdditionalVariables(
       const expression = variable.valueExpression;
       if (expression && expression.language && expression.name) {
         if (expression.language === 'text/fhirpath') {
-          existingVariables.fhirPathVariables['QuestionnaireLevel'].push(expression);
+          existingVariables.fhirPathVariables['QuestionnaireLevel']?.push(expression);
         } else if (expression.language === 'application/x-fhir-query') {
           existingVariables.xFhirQueryVariables[expression.name] = {
             valueExpression: expression

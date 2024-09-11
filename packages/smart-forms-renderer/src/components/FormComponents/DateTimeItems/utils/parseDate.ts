@@ -48,6 +48,10 @@ export function validateDateInput(input: string) {
     return false;
   }
 
+  if (!matches[1] || !matches[2]) {
+    return false;
+  }
+
   // Handle MM/YYYY format
   if (matches.length === 2) {
     return validateTwoMatches(matches[0], matches[1]);

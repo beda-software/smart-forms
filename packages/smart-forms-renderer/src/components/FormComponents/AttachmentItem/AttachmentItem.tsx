@@ -54,9 +54,9 @@ function AttachmentItem(props: AttachmentItemProps) {
   const readOnly = useReadOnly(qItem, parentIsReadOnly);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   let valueString = '';
-  if (qrItem?.answer && qrItem?.answer[0].valueString) {
+  if (qrItem?.answer && qrItem?.answer[0]?.valueString) {
     valueString = qrItem.answer[0].valueString;
   }
 

@@ -61,12 +61,12 @@ function useValueSetCodings(qItem: QuestionnaireItem): {
 
       // attempt to get codings from value sets preprocessed when loading questionnaire
       if (processedValueSetCodings[cleanValueSetUrl]) {
-        return processedValueSetCodings[cleanValueSetUrl];
+        return processedValueSetCodings[cleanValueSetUrl] ?? [];
       }
 
       // attempt to get codings from cached queried value sets
       if (cachedValueSetCodings[cleanValueSetUrl]) {
-        return cachedValueSetCodings[cleanValueSetUrl];
+        return cachedValueSetCodings[cleanValueSetUrl] ?? [];
       }
     }
 
@@ -84,14 +84,17 @@ function useValueSetCodings(qItem: QuestionnaireItem): {
       const contextMap: Record<string, FhirResource> = {};
 
       // get answer expression resource from launch contexts
-      if (launchContexts[variable]) {
-        const resourceType = launchContexts[variable].extension[1].valueCode;
+      const launchContext = launchContexts[variable];
+      const xFhirQueryVariable = xFhirQueryVariables[variable];
+
+      if (launchContext) {
+        const resourceType = launchContext.extension[1].valueCode;
         const resource = getResourceFromLaunchContext(resourceType, patient, user, encounter);
         if (resource) {
           contextMap[variable] = resource;
         }
-      } else if (xFhirQueryVariables[variable]) {
-        const resource = xFhirQueryVariables[variable].result;
+      } else if (xFhirQueryVariable) {
+        const resource = xFhirQueryVariable.result;
         if (resource) {
           contextMap[variable] = resource;
         }

@@ -82,8 +82,9 @@ function GroupTable(props: GroupTableProps) {
   function handleRowChange(newQrRow: QuestionnaireResponseItem, index: number) {
     const updatedTableRows = [...tableRows];
 
-    if (newQrRow.item) {
-      updatedTableRows[index].qrItem = {
+    const updatedTableRow = updatedTableRows[index];
+    if (newQrRow.item && updatedTableRow) {
+      updatedTableRow.qrItem = {
         linkId: newQrRow.linkId,
         text: newQrRow.text,
         item: newQrRow.item
@@ -101,7 +102,7 @@ function GroupTable(props: GroupTableProps) {
     const updatedTableRows = [...tableRows];
 
     const rowToRemove = updatedTableRows[index];
-    const updatedSelectedIds = selectedIds.filter((id) => id !== rowToRemove.nanoId);
+    const updatedSelectedIds = selectedIds.filter((id) => id !== rowToRemove?.nanoId);
 
     updatedTableRows.splice(index, 1);
 

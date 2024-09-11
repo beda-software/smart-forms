@@ -53,9 +53,9 @@ function StringItem(props: StringItemProps) {
   const { displayUnit, displayPrompt, entryFormat } = useRenderingExtensions(qItem);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   let valueString = '';
-  if (qrItem?.answer && qrItem?.answer[0].valueString) {
+  if (qrItem?.answer && qrItem?.answer[0]?.valueString) {
     valueString = qrItem.answer[0].valueString;
   }
 

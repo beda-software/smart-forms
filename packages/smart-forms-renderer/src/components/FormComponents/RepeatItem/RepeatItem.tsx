@@ -61,7 +61,7 @@ function RepeatItem(props: RepeatItemProps) {
   // Event Handlers
   function handleAnswerChange(newQrItem: QuestionnaireResponseItem, index: number) {
     const updatedRepeatAnswers = [...repeatAnswers];
-    updatedRepeatAnswers[index] = newQrItem.answer ? newQrItem.answer[0] : null;
+    updatedRepeatAnswers[index] = newQrItem.answer ? newQrItem.answer[0] ?? null : null;
 
     onQrItemChange({
       ...createEmptyQrItem(qItem, undefined),

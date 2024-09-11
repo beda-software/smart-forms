@@ -63,7 +63,7 @@ function GridGroup(props: GridGroupProps) {
   const qItemsIndexMap = useMemo(() => mapQItemsIndex(qItem), [qItem]);
 
   const columnLabels: string[] = useMemo(
-    () => qRowItems?.[0].item?.map((firstItem) => firstItem.text ?? ' ') ?? [],
+    () => qRowItems?.[0]?.item?.map((firstItem) => firstItem.text ?? ' ') ?? [],
     [qRowItems]
   );
 

@@ -52,39 +52,39 @@ function useDecimalCalculatedExpression(
         (exp) => exp.from === 'item'
       );
 
-      if (!calcExpression) {
-        return;
-      }
-
-      // only update if calculated value is different from current value
-      if (
-        calcExpression.value !== inputValue &&
-        (typeof calcExpression.value === 'number' || calcExpression.value === null)
-      ) {
-        const calcExpressionValue =
-          typeof calcExpression.value === 'number' && typeof precision === 'number'
-            ? parseFloat(calcExpression.value.toFixed(precision))
-            : calcExpression.value;
-
+      if (calcExpression) {
         // only update if calculated value is different from current value
-        if (calcExpressionValue !== parseFloat(inputValue)) {
-          // update ui to show calculated value changes
-          setCalcExpUpdated(true);
-          const timeoutId = setTimeout(() => {
-            setCalcExpUpdated(false);
-          }, 500);
+        if (
+          calcExpression.value !== inputValue &&
+          (typeof calcExpression.value === 'number' || calcExpression.value === null)
+        ) {
+          const calcExpressionValue =
+            typeof calcExpression.value === 'number' && typeof precision === 'number'
+              ? parseFloat(calcExpression.value.toFixed(precision))
+              : calcExpression.value;
 
-          // calculatedExpression value is null
-          if (calcExpressionValue === null) {
-            onChangeByCalcExpressionNull();
+          // only update if calculated value is different from current value
+          if (calcExpressionValue !== parseFloat(inputValue)) {
+            // update ui to show calculated value changes
+            setCalcExpUpdated(true);
+            const timeoutId = setTimeout(() => {
+              setCalcExpUpdated(false);
+            }, 500);
+
+            // calculatedExpression value is null
+            if (calcExpressionValue === null) {
+              onChangeByCalcExpressionNull();
+              return () => clearTimeout(timeoutId);
+            }
+
+            // calculatedExpression value is a number
+            onChangeByCalcExpressionDecimal(calcExpressionValue);
             return () => clearTimeout(timeoutId);
           }
-
-          // calculatedExpression value is a number
-          onChangeByCalcExpressionDecimal(calcExpressionValue);
-          return () => clearTimeout(timeoutId);
         }
       }
+
+      return () => {};
     },
     // Only trigger this effect if calculatedExpression of item changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

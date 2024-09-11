@@ -51,12 +51,12 @@ function ChoiceSelectAnswerValueSetItem(props: ChoiceSelectAnswerValueSetItemPro
   const readOnly = useReadOnly(qItem, parentIsReadOnly);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   const qrChoiceSelect = qrItem ?? createEmptyQrItem(qItem, answerKey);
 
   let valueCoding: Coding | null = null;
   if (qrChoiceSelect.answer) {
-    valueCoding = qrChoiceSelect.answer[0].valueCoding ?? null;
+    valueCoding = qrChoiceSelect.answer[0]?.valueCoding ?? null;
   }
 
   // Get codings/options from valueSet
@@ -74,7 +74,7 @@ function ChoiceSelectAnswerValueSetItem(props: ChoiceSelectAnswerValueSetItemPro
   //       but will fail if answer provided is not within options
   useEffect(
     () => {
-      if (qrChoiceSelect.answer && qrChoiceSelect.answer[0].valueString) {
+      if (qrChoiceSelect.answer && qrChoiceSelect.answer[0]?.valueString) {
         onQrItemChange(createEmptyQrItem(qItem, answerKey));
       }
     },

@@ -28,13 +28,16 @@ export async function addDisplayToProcessedCodings(
   const codeSystemLookupPromises: Record<string, CodeSystemLookupPromise> = {};
   for (const key in processedCodings) {
     const codings = processedCodings[key];
-    for (const coding of codings) {
-      if (!coding.display) {
-        const query = `system=${coding.system}&code=${coding.code}`;
-        codeSystemLookupPromises[query] = {
-          promise: getCodeSystemLookupPromise(query, terminologyServerUrl),
-          oldCoding: coding
-        };
+
+    if (codings) {
+      for (const coding of codings) {
+        if (!coding.display) {
+          const query = `system=${coding.system}&code=${coding.code}`;
+          codeSystemLookupPromises[query] = {
+            promise: getCodeSystemLookupPromise(query, terminologyServerUrl),
+            oldCoding: coding
+          };
+        }
       }
     }
   }
@@ -44,11 +47,13 @@ export async function addDisplayToProcessedCodings(
   for (const key in processedCodings) {
     const codings = processedCodings[key];
 
-    for (const coding of codings) {
-      const lookUpKey = `system=${coding.system}&code=${coding.code}`;
-      const resolvedLookup = resolvedCodeSystemLookupPromises[lookUpKey];
-      if (resolvedLookup?.newCoding?.display) {
-        coding.display = resolvedLookup.newCoding.display;
+    if (codings) {
+      for (const coding of codings) {
+        const lookUpKey = `system=${coding.system}&code=${coding.code}`;
+        const resolvedLookup = resolvedCodeSystemLookupPromises[lookUpKey];
+        if (resolvedLookup?.newCoding?.display) {
+          coding.display = resolvedLookup.newCoding.display;
+        }
       }
     }
   }
@@ -65,13 +70,16 @@ export async function addDisplayToAnswerOptions(
   const codeSystemLookupPromises: Record<string, CodeSystemLookupPromise> = {};
   for (const key in answerOptions) {
     const options = answerOptions[key];
-    for (const option of options) {
-      if (option.valueCoding && !option.valueCoding.display) {
-        const query = `system=${option.valueCoding.system}&code=${option.valueCoding.code}`;
-        codeSystemLookupPromises[query] = {
-          promise: getCodeSystemLookupPromise(query, terminologyServerUrl),
-          oldCoding: option.valueCoding
-        };
+
+    if (options) {
+      for (const option of options) {
+        if (option.valueCoding && !option.valueCoding.display) {
+          const query = `system=${option.valueCoding.system}&code=${option.valueCoding.code}`;
+          codeSystemLookupPromises[query] = {
+            promise: getCodeSystemLookupPromise(query, terminologyServerUrl),
+            oldCoding: option.valueCoding
+          };
+        }
       }
     }
   }
@@ -81,12 +89,14 @@ export async function addDisplayToAnswerOptions(
   for (const key in answerOptions) {
     const options = answerOptions[key];
 
-    for (const option of options) {
-      if (option.valueCoding) {
-        const lookUpKey = `system=${option.valueCoding.system}&code=${option.valueCoding.code}`;
-        const resolvedLookup = resolvedCodeSystemLookupPromises[lookUpKey];
-        if (resolvedLookup?.newCoding?.display) {
-          option.valueCoding.display = resolvedLookup.newCoding.display;
+    if (options) {
+      for (const option of options) {
+        if (option.valueCoding) {
+          const lookUpKey = `system=${option.valueCoding.system}&code=${option.valueCoding.code}`;
+          const resolvedLookup = resolvedCodeSystemLookupPromises[lookUpKey];
+          if (resolvedLookup?.newCoding?.display) {
+            option.valueCoding.display = resolvedLookup.newCoding.display;
+          }
         }
       }
     }

@@ -56,14 +56,14 @@ function CustomDateItem(props: CustomDateItemProps) {
   const { displayPrompt, entryFormat } = useRenderingExtensions(qItem);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   const qrDate = qrItem ?? createEmptyQrItem(qItem, answerKey);
 
   let valueDate: string = '';
   if (qrDate.answer) {
-    if (qrDate.answer[0].valueDate) {
+    if (qrDate.answer[0]?.valueDate) {
       valueDate = qrDate.answer[0].valueDate;
-    } else if (qrDate.answer[0].valueDateTime) {
+    } else if (qrDate.answer[0]?.valueDateTime) {
       valueDate = qrDate.answer[0].valueDateTime;
     }
   }

@@ -66,108 +66,111 @@ function useQuantityCalculatedExpression(
         (exp) => exp.from === 'item'
       );
 
-      if (!calcExpression) {
-        return;
-      }
+      if (calcExpression) {
+        // only update if calculated value is different from current value
+        if (
+          calcExpression.value !== inputValue &&
+          (typeof calcExpression.value === 'number' ||
+            typeof calcExpression.value === 'string' ||
+            calcExpression.value === null)
+        ) {
+          // Null path
+          if (calcExpression.value === null) {
+            onChangeByCalcExpressionNull();
+            return;
+          }
 
-      // only update if calculated value is different from current value
-      if (
-        calcExpression.value !== inputValue &&
-        (typeof calcExpression.value === 'number' ||
-          typeof calcExpression.value === 'string' ||
-          calcExpression.value === null)
-      ) {
-        // Null path
-        if (calcExpression.value === null) {
-          onChangeByCalcExpressionNull();
-          return;
-        }
+          // Number path
+          if (typeof calcExpression.value === 'number') {
+            const calcExpressionValue =
+              typeof precision === 'number'
+                ? parseFloat(calcExpression.value.toFixed(precision))
+                : calcExpression.value;
 
-        // Number path
-        if (typeof calcExpression.value === 'number') {
-          const calcExpressionValue =
-            typeof precision === 'number'
-              ? parseFloat(calcExpression.value.toFixed(precision))
-              : calcExpression.value;
+            // only update if calculated value is different from current value
+            if (calcExpressionValue !== parseFloat(inputValue)) {
+              // update ui to show calculated value changes
+              setCalcExpUpdated(true);
+              const timeoutId = setTimeout(() => {
+                setCalcExpUpdated(false);
+              }, 500);
 
-          // only update if calculated value is different from current value
-          if (calcExpressionValue !== parseFloat(inputValue)) {
-            // update ui to show calculated value changes
-            setCalcExpUpdated(true);
-            const timeoutId = setTimeout(() => {
-              setCalcExpUpdated(false);
-            }, 500);
+              // calculatedExpression value is null
+              if (calcExpressionValue === null) {
+                onChangeByCalcExpressionNull();
+                return () => clearTimeout(timeoutId);
+              }
 
-            // calculatedExpression value is null
-            if (calcExpressionValue === null) {
-              onChangeByCalcExpressionNull();
+              // calculatedExpression value is a number
+              onChangeByCalcExpressionDecimal(calcExpressionValue);
               return () => clearTimeout(timeoutId);
             }
-
-            // calculatedExpression value is a number
-            onChangeByCalcExpressionDecimal(calcExpressionValue);
-            return () => clearTimeout(timeoutId);
           }
-        }
 
-        // String path (quantity)
-        if (typeof calcExpression.value === 'string') {
-          try {
-            const [value, unitCode] = calcExpression.value.split(' ');
-            const unitCodeFormatted = unitCode.replace(/'/g, '');
+          // String path (quantity)
+          if (typeof calcExpression.value === 'string') {
+            try {
+              const [value, unitCode] = calcExpression.value.split(' ');
+              const unitCodeFormatted = unitCode?.replace(/'/g, '');
 
-            const ucumValueSet = 'http://hl7.org/fhir/ValueSet/ucum-units';
-            const ucumSystem = 'http://unitsofmeasure.org';
+              const ucumValueSet = 'http://hl7.org/fhir/ValueSet/ucum-units';
+              const ucumSystem = 'http://unitsofmeasure.org';
 
-            validateCodePromise(
-              ucumValueSet,
-              ucumSystem,
-              unitCodeFormatted,
-              TERMINOLOGY_SERVER_URL
-            ).then((validateCodeResponse) => {
-              // Return early if validate-code request fails
-              if (!validateCodeResponse) {
+              if (!value || !unitCodeFormatted) {
                 onChangeByCalcExpressionNull();
                 return;
               }
 
-              if (validateCodeResponse.parameter) {
-                const systemParameter = validateCodeResponse.parameter.find(
-                  (p) => p.name === 'system'
-                ) as SystemParameter;
-                const codeParameter = validateCodeResponse.parameter.find(
-                  (p) => p.name === 'code'
-                ) as CodeParameter;
-                const displayParameter = validateCodeResponse.parameter.find(
-                  (p) => p.name === 'display'
-                ) as DisplayParameter;
-                if (
-                  systemParameter.valueUri &&
-                  codeParameter.valueCode &&
-                  displayParameter.valueString
-                ) {
-                  // update ui to show calculated value changes
-                  setCalcExpUpdated(true);
-                  const timeoutId = setTimeout(() => {
-                    setCalcExpUpdated(false);
-                  }, 500);
-
-                  onChangeByCalcExpressionQuantity(
-                    parseFloat(value),
-                    systemParameter.valueUri,
-                    codeParameter.valueCode,
+              validateCodePromise(
+                ucumValueSet,
+                ucumSystem,
+                unitCodeFormatted,
+                TERMINOLOGY_SERVER_URL
+              ).then((validateCodeResponse) => {
+                // Return early if validate-code request fails
+                if (validateCodeResponse?.parameter) {
+                  const systemParameter = validateCodeResponse.parameter.find(
+                    (p) => p.name === 'system'
+                  ) as SystemParameter;
+                  const codeParameter = validateCodeResponse.parameter.find(
+                    (p) => p.name === 'code'
+                  ) as CodeParameter;
+                  const displayParameter = validateCodeResponse.parameter.find(
+                    (p) => p.name === 'display'
+                  ) as DisplayParameter;
+                  if (
+                    systemParameter.valueUri &&
+                    codeParameter.valueCode &&
                     displayParameter.valueString
-                  );
-                  return () => clearTimeout(timeoutId);
+                  ) {
+                    // update ui to show calculated value changes
+                    setCalcExpUpdated(true);
+                    const timeoutId = setTimeout(() => {
+                      setCalcExpUpdated(false);
+                    }, 500);
+
+                    onChangeByCalcExpressionQuantity(
+                      parseFloat(value),
+                      systemParameter.valueUri,
+                      codeParameter.valueCode,
+                      displayParameter.valueString
+                    );
+                    return () => clearTimeout(timeoutId);
+                  }
                 }
-              }
-            });
-          } catch (e) {
-            console.error(e);
-            onChangeByCalcExpressionNull();
+
+                onChangeByCalcExpressionNull();
+                return () => {};
+              });
+            } catch (e) {
+              console.error(e);
+              onChangeByCalcExpressionNull();
+            }
           }
         }
       }
+
+      return () => {};
     },
     // Only trigger this effect if calculatedExpression of item changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

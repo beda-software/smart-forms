@@ -227,7 +227,7 @@ export function getTextDisplayPrompt(qItem: QuestionnaireItem): string {
     for (const childItem of qItem.item) {
       if (childItem.type === 'display' && isSpecificItemControl(childItem, 'prompt')) {
         const promptText = `${childItem.text}`;
-        return promptText[0].toUpperCase() + promptText.substring(1);
+        return promptText[0]?.toUpperCase() + promptText.substring(1);
       }
     }
   }

@@ -51,14 +51,14 @@ function OpenChoiceAutocompleteItem(props: OpenChoiceAutocompleteItemProps) {
 
   const readOnly = useReadOnly(qItem, parentIsReadOnly);
 
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   const qrOpenChoice = qrItem ?? createEmptyQrItem(qItem, answerKey);
 
   // Init input value
   let valueAutocomplete: Coding | string | undefined;
   if (qrOpenChoice.answer) {
     const answer = qrOpenChoice.answer[0];
-    valueAutocomplete = answer.valueCoding ? answer.valueCoding : answer.valueString;
+    valueAutocomplete = answer?.valueCoding ? answer.valueCoding : answer?.valueString;
   }
 
   if (!valueAutocomplete) {

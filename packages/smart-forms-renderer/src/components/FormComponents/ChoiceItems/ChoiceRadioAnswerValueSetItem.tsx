@@ -48,12 +48,12 @@ function ChoiceRadioAnswerValueSetItem(props: ChoiceRadioAnswerValueSetItemProps
   const readOnly = useReadOnly(qItem, parentIsReadOnly);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   const qrChoiceRadio = qrItem ?? createEmptyQrItem(qItem, answerKey);
 
   let valueRadio: string | null = null;
   if (qrChoiceRadio.answer) {
-    valueRadio = qrChoiceRadio.answer[0].valueCoding?.code ?? null;
+    valueRadio = qrChoiceRadio.answer[0]?.valueCoding?.code ?? null;
   }
 
   // Get codings/options from valueSet

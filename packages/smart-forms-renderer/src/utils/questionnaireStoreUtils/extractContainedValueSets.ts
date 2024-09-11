@@ -68,10 +68,10 @@ export function extractContainedValueSets(
  *
  * @author Sean Fong
  */
-export function getValueSetUrlFromContained(valueSet: ValueSet): string {
+export function getValueSetUrlFromContained(valueSet: ValueSet) {
   const urls = valueSet.compose?.include?.map((include) =>
     include.valueSet?.[0] ? include.valueSet[0] : ''
   );
 
-  return urls && urls.length > 0 ? urls[0] : '';
+  return urls && urls.length > 0 ? urls[0] ?? '' : '';
 }

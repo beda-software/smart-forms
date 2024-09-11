@@ -63,22 +63,22 @@ function CustomDateTimeItem(props: CustomDateTimeItemProps) {
   const { displayPrompt, entryFormat } = useRenderingExtensions(qItem);
 
   // Init input value
-  const answerKey = qrItem?.answer?.[0].id;
+  const answerKey = qrItem?.answer?.[0]?.id;
   const qrDateTime = qrItem ?? createEmptyQrItem(qItem, answerKey);
 
   let valueDate: string = '';
   let dateTimeDayJs: Dayjs | null = null;
   if (qrDateTime.answer) {
     let tempDateTime = '';
-    if (qrDateTime.answer[0].valueDate) {
-      tempDateTime = qrDateTime.answer[0].valueDate;
-    } else if (qrDateTime.answer[0].valueDateTime) {
-      tempDateTime = qrDateTime.answer[0].valueDateTime;
+    if (qrDateTime.answer[0]?.valueDate) {
+      tempDateTime = qrDateTime.answer[0]?.valueDate;
+    } else if (qrDateTime.answer[0]?.valueDateTime) {
+      tempDateTime = qrDateTime.answer[0]?.valueDateTime;
     }
 
     // split date and time at "T", 2015-02-07T13:28:17-05:00
     if (tempDateTime.includes('T')) {
-      valueDate = tempDateTime.split('T')[0];
+      valueDate = tempDateTime.split('T')[0] ?? '';
       dateTimeDayJs = dayjs(tempDateTime);
     } else {
       valueDate = tempDateTime;

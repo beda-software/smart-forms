@@ -85,8 +85,12 @@ function evaluateEnableWhenSingleExpressions(
 } {
   let isUpdated = false;
   for (const linkId in enableWhenSingleExpressions) {
-    const initialValue = enableWhenSingleExpressions[linkId].isEnabled;
-    const expression = enableWhenSingleExpressions[linkId].expression;
+    const enableWhenSingleExpression = enableWhenSingleExpressions[linkId];
+    const initialValue = enableWhenSingleExpression?.isEnabled;
+    const expression = enableWhenSingleExpression?.expression;
+    if (!enableWhenSingleExpression || !expression) {
+      continue;
+    }
 
     try {
       const result = fhirpath.evaluate('', expression, updatedFhirPathContext, fhirpath_r4_model);
@@ -94,29 +98,29 @@ function evaluateEnableWhenSingleExpressions(
       // Update enableWhenExpressions if length of result array > 0
       // Only update when current isEnabled value is different from the result, otherwise it will result in an infinite loop as per issue #733
       if (result.length > 0 && initialValue !== result[0] && typeof result[0] === 'boolean') {
-        enableWhenSingleExpressions[linkId].isEnabled = result[0];
+        enableWhenSingleExpression.isEnabled = result[0];
         isUpdated = true;
       }
 
       // Update isEnabled value to false if no result is returned
       if (result.length === 0 && initialValue !== false) {
-        enableWhenSingleExpressions[linkId].isEnabled = false;
+        enableWhenSingleExpression.isEnabled = false;
         isUpdated = true;
       }
 
       // handle intersect edge case - evaluate() returns empty array if result is false
       if (
-        enableWhenSingleExpressions[linkId].expression.includes('intersect') &&
+        enableWhenSingleExpression.expression.includes('intersect') &&
         result.length === 0 &&
         initialValue !== false
       ) {
-        enableWhenSingleExpressions[linkId].isEnabled = false;
+        enableWhenSingleExpression.isEnabled = false;
         isUpdated = true;
       }
     } catch (e) {
       console.warn(
         e.message,
-        `LinkId: ${linkId}\nExpression: ${enableWhenSingleExpressions[linkId].expression}`
+        `LinkId: ${linkId}\nExpression: ${enableWhenSingleExpression.expression}`
       );
     }
   }
@@ -148,17 +152,20 @@ function evaluateEnableWhenRepeatExpressions(
   let aggregatedUpdated = false;
   for (const linkId in enableWhenRepeatExpressions) {
     // Get number of repeat group instances in the QR
-    const enableWhenExpression = enableWhenRepeatExpressions[linkId];
+    const enableWhenRepeatExpression = enableWhenRepeatExpressions[linkId];
+    if (!enableWhenRepeatExpression) {
+      continue;
+    }
 
     const numOfInstances = getNumOfEnableWhenExpressionItemInstances(
-      enableWhenExpression,
+      enableWhenRepeatExpression,
       fhirPathContext
     );
     if (!numOfInstances) {
       continue;
     }
 
-    const lastLinkIdIndex = enableWhenExpression.expression.lastIndexOf('.where(linkId');
+    const lastLinkIdIndex = enableWhenRepeatExpression.expression.lastIndexOf('.where(linkId');
     if (lastLinkIdIndex === -1) {
       continue;
     }
@@ -167,13 +174,13 @@ function evaluateEnableWhenRepeatExpressions(
       const { isEnabled, isUpdated } = evaluateEnableWhenRepeatExpressionInstance(
         linkId,
         fhirPathContext,
-        enableWhenExpression,
+        enableWhenRepeatExpression,
         lastLinkIdIndex,
         i
       );
 
       if (typeof isEnabled === 'boolean') {
-        enableWhenRepeatExpressions[linkId].enabledIndexes[i] = isEnabled;
+        enableWhenRepeatExpression.enabledIndexes[i] = isEnabled;
       }
 
       aggregatedUpdated = aggregatedUpdated || isUpdated;
@@ -298,7 +305,12 @@ export function mutateRepeatEnableWhenExpressionInstances(
 
   let isUpdated = false;
   for (const linkId in repeatExpressions) {
-    if (repeatExpressions[linkId].parentLinkId !== parentRepeatGroupLinkId) {
+    const repeatExpression = repeatExpressions[linkId];
+    if (!repeatExpression) {
+      continue;
+    }
+
+    if (repeatExpression.parentLinkId !== parentRepeatGroupLinkId) {
       continue;
     }
 
@@ -306,16 +318,16 @@ export function mutateRepeatEnableWhenExpressionInstances(
       const { isEnabled } = evaluateEnableWhenRepeatExpressionInstance(
         linkId,
         updatedFhirPathContext,
-        repeatExpressions[linkId],
-        repeatExpressions[linkId].expression.lastIndexOf('.where(linkId'),
+        repeatExpression,
+        repeatExpression.expression.lastIndexOf('.where(linkId'),
         parentRepeatGroupIndex
       );
 
       if (typeof isEnabled === 'boolean') {
-        repeatExpressions[linkId].enabledIndexes[parentRepeatGroupIndex] = isEnabled;
+        repeatExpression.enabledIndexes[parentRepeatGroupIndex] = isEnabled;
       }
     } else if (actionType === 'remove') {
-      repeatExpressions[linkId].enabledIndexes.splice(parentRepeatGroupIndex, 1);
+      repeatExpression.enabledIndexes.splice(parentRepeatGroupIndex, 1);
     }
 
     isUpdated = true;

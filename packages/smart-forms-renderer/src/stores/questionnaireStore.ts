@@ -27,8 +27,8 @@ import type { LaunchContext } from '../interfaces/populate.interface';
 import type { CalculatedExpression } from '../interfaces/calculatedExpression.interface';
 import type { EnableWhenExpressions, EnableWhenItems } from '../interfaces/enableWhen.interface';
 import type { AnswerExpression } from '../interfaces/answerExpression.interface';
-import type { Tabs } from '../interfaces/tab.interface';
-import type { Pages } from '../interfaces/page.interface';
+import type { Tab, Tabs } from '../interfaces/tab.interface';
+import type { Page, Pages } from '../interfaces/page.interface';
 import {
   mutateRepeatEnableWhenItemInstances,
   updateEnableWhenItemAnswer
@@ -269,7 +269,7 @@ export const questionnaireStore = createStore<QuestionnaireStoreType>()((set, ge
     set(() => ({
       tabs: {
         ...tabs,
-        [tabLinkId]: { ...tabs[tabLinkId], isComplete: !tabs[tabLinkId].isComplete }
+        [tabLinkId]: { ...tabs[tabLinkId], isComplete: !tabs[tabLinkId]?.isComplete } as Tab
       }
     }));
   },
@@ -278,7 +278,7 @@ export const questionnaireStore = createStore<QuestionnaireStoreType>()((set, ge
     set(() => ({
       pages: {
         ...pages,
-        [pageLinkId]: { ...pages[pageLinkId], isComplete: !pages[pageLinkId].isComplete }
+        [pageLinkId]: { ...pages[pageLinkId], isComplete: !pages[pageLinkId]?.isComplete } as Page
       }
     }));
   },
@@ -296,7 +296,7 @@ export const questionnaireStore = createStore<QuestionnaireStoreType>()((set, ge
     const itemLinkedQuestions = enableWhenLinkedQuestions[linkId];
     const updatedEnableWhenItems = updateEnableWhenItemAnswer(
       { ...enableWhenItems },
-      itemLinkedQuestions,
+      itemLinkedQuestions ?? [],
       linkId,
       newAnswer,
       parentRepeatGroupIndex
@@ -365,7 +365,7 @@ export const questionnaireStore = createStore<QuestionnaireStoreType>()((set, ge
         calculatedExpressions: updatedCalculatedExpressions,
         fhirPathContext: updatedFhirPathContext
       }));
-      return 0;
+      return;
     }
 
     set(() => ({

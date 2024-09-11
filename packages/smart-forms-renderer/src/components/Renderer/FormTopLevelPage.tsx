@@ -39,7 +39,7 @@ function FormTopLevelPage(props: FormTopLevelPageProps) {
             }
 
             const isRepeated = qItem.repeats ?? false;
-            const pageIsMarkedAsComplete = pages[qItem.linkId].isComplete ?? false;
+            const pageIsMarkedAsComplete = pages[qItem.linkId]?.isComplete ?? false;
 
             return (
               <TabPanel

@@ -79,7 +79,7 @@ function extractObservationBasedRecursive(
       for (const answer of responseItem.answer) {
         const currentQItemExtractable = extraData.qItemMap[qItem.linkId];
 
-        if (currentQItemExtractable.extractable) {
+        if (currentQItemExtractable?.extractable) {
           const observation = createObservation(
             qItem,
             extraData.qr,
@@ -160,29 +160,31 @@ function mapQItemsExtractableRecursive(
   qItem: QuestionnaireItem,
   root?: Questionnaire,
   parent?: QuestionnaireItem,
-  qItemExtrableMap?: Record<string, Extractable>
+  qItemExtractableMap?: Record<string, Extractable>
 ): void {
-  if (!qItemExtrableMap) return;
+  if (!qItemExtractableMap) return;
 
-  if (!qItemExtrableMap[qItem.linkId]) {
-    qItemExtrableMap[qItem.linkId] = { extractable: false, extractCategories: [] };
+  let qItemExtractable = qItemExtractableMap[qItem.linkId];
+  if (!qItemExtractable) {
+    qItemExtractable = { extractable: false, extractCategories: [] };
   }
 
   // Check if questionnaire extractable
   const extension = qItem.extension?.find((e) => e.url === FHIR_OBSERVATION_EXTRACT_EXTENSION);
 
   if (extension?.valueBoolean || extension?.valueBoolean === false) {
-    qItemExtrableMap[qItem.linkId].extractable = extension?.valueBoolean ?? false;
-  } else if (parent && qItemExtrableMap[parent.linkId]) {
-    qItemExtrableMap[qItem.linkId].extractable = qItemExtrableMap[parent.linkId].extractable;
-  } else if (root && qItemExtrableMap[root.id ?? 'root']) {
-    qItemExtrableMap[qItem.linkId].extractable = qItemExtrableMap[root?.id ?? 'root'].extractable;
+    qItemExtractable.extractable = extension?.valueBoolean ?? false;
+  } else if (parent && qItemExtractableMap[parent.linkId]) {
+    qItemExtractable.extractable = qItemExtractableMap[parent.linkId]?.extractable ?? false;
+  } else if (root && qItemExtractableMap[root.id ?? 'root']) {
+    const rootExtractable = qItemExtractableMap[root?.id ?? 'root'];
+    qItemExtractable.extractable = rootExtractable?.extractable ?? false;
   } else {
-    qItemExtrableMap[qItem.linkId].extractable = false;
+    qItemExtractable.extractable = false;
   }
 
   // if questionnaire extractable, check for extract category
-  if (qItemExtrableMap[qItem.linkId].extractable) {
+  if (qItemExtractable.extractable) {
     const extractCategoryExts = qItem.extension
       ?.filter(
         (e) => e.url === FHIR_OBSERVATION_EXTRACT_CATEGORY_EXTENSION && e.valueCodeableConcept
@@ -190,21 +192,21 @@ function mapQItemsExtractableRecursive(
       ?.map((e) => e.valueCodeableConcept) as CodeableConcept[] | undefined;
 
     if (extractCategoryExts) {
-      qItemExtrableMap[qItem.linkId].extractCategories = extractCategoryExts;
-    } else if (parent && qItemExtrableMap[parent.linkId].extractCategories.length) {
-      qItemExtrableMap[qItem.linkId].extractCategories =
-        qItemExtrableMap[parent.linkId].extractCategories;
-    } else if (root && qItemExtrableMap[root.id ?? 'root'].extractCategories.length) {
-      qItemExtrableMap[qItem.linkId].extractCategories =
-        qItemExtrableMap[root?.id ?? 'root'].extractCategories;
+      qItemExtractable.extractCategories = extractCategoryExts;
+    } else if (parent && qItemExtractableMap[parent.linkId]?.extractCategories.length) {
+      qItemExtractable.extractCategories =
+        qItemExtractableMap[parent.linkId]?.extractCategories ?? [];
+    } else if (root && qItemExtractableMap[root.id ?? 'root']?.extractCategories.length) {
+      const rootExtractable = qItemExtractableMap[root?.id ?? 'root'];
+      qItemExtractable.extractCategories = rootExtractable?.extractCategories ?? [];
     } else {
-      qItemExtrableMap[qItem.linkId].extractCategories = [];
+      qItemExtractable.extractCategories = [];
     }
   }
 
   if (qItem.item && qItem.item.length !== 0) {
     for (const qChildItem of qItem.item) {
-      mapQItemsExtractableRecursive(qChildItem, root, qItem, qItemExtrableMap);
+      mapQItemsExtractableRecursive(qChildItem, root, qItem, qItemExtractableMap);
     }
   }
 }

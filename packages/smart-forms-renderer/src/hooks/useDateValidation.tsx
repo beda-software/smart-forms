@@ -40,6 +40,10 @@ function useDateValidation(input: string, parseFail: boolean = false): string | 
     }
 
     const matches = input.split('/');
+    if (!matches[0] || !matches[1] || !matches[2]) {
+      return 'Input is an invalid date.';
+    }
+
     if (!validateThreeMatches(matches[0], matches[1], matches[2])) {
       return 'Input is an invalid date.';
     }
@@ -54,6 +58,9 @@ function useDateValidation(input: string, parseFail: boolean = false): string | 
     }
 
     const matches = input.split('/');
+    if (!matches[0] || !matches[1]) {
+      return 'Input is an invalid date.';
+    }
 
     if (validateTwoMatches(matches[0], matches[1])) {
       return null;

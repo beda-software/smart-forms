@@ -112,7 +112,7 @@ export function generateItemsToRepopulate(populatedResponse: QuestionnaireRespon
       itemsToRepopulate[linkId] = {
         qItem: getQuestionnaireItem(sourceQuestionnaire, linkId),
         heading: getSectionHeading(sourceQuestionnaire, linkId, tabs),
-        oldQRItem: updatableResponseItems[linkId][0]
+        oldQRItem: updatableResponseItems[linkId]?.[0]
       };
     }
   }
@@ -237,7 +237,7 @@ function getItemsToRepopulateRecursive(params: getItemsToRepopulateRecursivePara
       enableWhenExpressions
     })
   ) {
-    return null;
+    return;
   }
 
   // For repeat groups
@@ -462,8 +462,12 @@ function retrieveSingleOldQRItem(
   oldQRItem: QuestionnaireResponseItem,
   itemsToRepopulate: Record<string, ItemToRepopulate>
 ) {
-  const newQRItem = itemsToRepopulate[qItem.linkId]?.newQRItem;
+  const itemToRepopulate = itemsToRepopulate[qItem.linkId];
+  if (!itemToRepopulate) {
+    return;
+  }
 
+  const newQRItem = itemToRepopulate.newQRItem;
   if (!newQRItem) {
     return;
   }
@@ -473,7 +477,7 @@ function retrieveSingleOldQRItem(
     return;
   }
 
-  itemsToRepopulate[qItem.linkId].oldQRItem = oldQRItem;
+  itemToRepopulate.oldQRItem = oldQRItem;
 }
 
 function retrieveRepeatGroupOldQRItems(
@@ -485,7 +489,12 @@ function retrieveRepeatGroupOldQRItems(
     return;
   }
 
-  const newQRItems = itemsToRepopulate[qItem.linkId]?.newQRItems;
+  const itemToRepopulate = itemsToRepopulate[qItem.linkId];
+  if (!itemToRepopulate) {
+    return;
+  }
+
+  const newQRItems = itemToRepopulate.newQRItems;
   if (!newQRItems) {
     return;
   }
@@ -495,7 +504,7 @@ function retrieveRepeatGroupOldQRItems(
     return;
   }
 
-  itemsToRepopulate[qItem.linkId].oldQRItems = oldQRItems;
+  itemToRepopulate.oldQRItems = oldQRItems;
 }
 
 function retrieveGridGroupOldQRItems(
@@ -508,7 +517,12 @@ function retrieveGridGroupOldQRItems(
     return;
   }
 
-  const newGridQRItem = itemsToRepopulate[qItem.linkId]?.newQRItem;
+  const itemToRepopulate = itemsToRepopulate[qItem.linkId];
+  if (!itemToRepopulate) {
+    return;
+  }
+
+  const newGridQRItem = itemToRepopulate.newQRItem;
   if (!newGridQRItem || !newGridQRItem.item) {
     return;
   }
@@ -550,12 +564,12 @@ function retrieveGridGroupOldQRItems(
   }
 
   // Otherwise create both old and new grid qr item
-  itemsToRepopulate[qItem.linkId].newQRItem = {
+  itemToRepopulate.newQRItem = {
     linkId: qItem.linkId,
     text: qItem.text,
     item: newGridChildQRItemsToRepopulate
   };
-  itemsToRepopulate[qItem.linkId].oldQRItem = {
+  itemToRepopulate.oldQRItem = {
     linkId: qItem.linkId,
     text: qItem.text,
     item: oldGridChildQRItems

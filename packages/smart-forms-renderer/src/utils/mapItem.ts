@@ -45,7 +45,7 @@ export function getQrItemsIndex(
 
       // Create an array out of initial stored value if it is not an array initially
       if (!Array.isArray(storedValue)) {
-        storedValue = [storedValue];
+        storedValue = [storedValue] as QuestionnaireResponseItem[];
       }
 
       // Push new qrItem into array
@@ -55,8 +55,13 @@ export function getQrItemsIndex(
       const qItemIndex = qItemsIndexMap[linkId];
 
       // Assign either a qrItem array or a single qrItem based on whether it is a repeatGroup or not
-      const isRepeatGroup =
-        isRepeatItemAndNotCheckbox(qItems[qItemIndex]) && qItems[qItemIndex].type === 'group';
+      let isRepeatGroup = false;
+      if (qItemIndex) {
+        const qItemAtIndex = qItems[qItemIndex];
+        if (qItemAtIndex) {
+          isRepeatGroup = isRepeatItemAndNotCheckbox(qItemAtIndex) && qItemAtIndex.type === 'group';
+        }
+      }
 
       qrItemsCollected[linkId] = isRepeatGroup ? [qrItem] : qrItem;
     }
@@ -69,9 +74,11 @@ export function getQrItemsIndex(
       const qrItemOrItems = qrItemsCollected[qItem.linkId];
       // If qItem is a repeat group, default its value to an array instead of undefined
       if (isRepeatItemAndNotCheckbox(qItem) && qItem.type === 'group') {
-        mapping[i] = qrItemOrItems ? qrItemsCollected[qItem.linkId] : [];
+        mapping[i] = qrItemOrItems
+          ? (qrItemsCollected[qItem.linkId] as QuestionnaireResponseItem)
+          : [];
       } else {
-        mapping[i] = qrItemsCollected[qItem.linkId];
+        mapping[i] = qrItemsCollected[qItem.linkId] as QuestionnaireResponseItem;
       }
       return mapping;
     },

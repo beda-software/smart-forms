@@ -6,16 +6,23 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
-    "useUnknownInCatchVariables": false,
     "strict": true,
     "skipLibCheck": true,
     "jsx": "react",
     "sourceMap": true,
-    "allowJs": true,
     "outDir": "lib",
     "declaration": true,
-    "checkJs": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedParameters": true,
+
+    "useUnknownInCatchVariables": false
   },
   "include": ["src"],
   "exclude": ["src/**/*.test.ts", "src/stories/**/*", "src/setup-jest.*", "lib"]

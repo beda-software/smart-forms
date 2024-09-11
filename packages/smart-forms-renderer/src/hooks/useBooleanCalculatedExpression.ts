@@ -46,31 +46,30 @@ function useBooleanCalculatedExpression(
         (exp) => exp.from === 'item'
       );
 
-      if (!calcExpression) {
-        return;
-      }
+      if (calcExpression) {
+        // only update if calculated value is different from current value
+        if (
+          calcExpression.value !== booleanValue &&
+          (typeof calcExpression.value === 'boolean' || calcExpression.value === null)
+        ) {
+          // update ui to show calculated value changes
+          setCalcExpUpdated(true);
+          const timeoutId = setTimeout(() => {
+            setCalcExpUpdated(false);
+          }, 500);
 
-      // only update if calculated value is different from current value
-      if (
-        calcExpression.value !== booleanValue &&
-        (typeof calcExpression.value === 'boolean' || calcExpression.value === null)
-      ) {
-        // update ui to show calculated value changes
-        setCalcExpUpdated(true);
-        const timeoutId = setTimeout(() => {
-          setCalcExpUpdated(false);
-        }, 500);
+          // calculatedExpression value is null
+          if (calcExpression.value === null) {
+            onChangeByCalcExpressionNull();
+            return () => clearTimeout(timeoutId);
+          }
 
-        // calculatedExpression value is null
-        if (calcExpression.value === null) {
-          onChangeByCalcExpressionNull();
+          // calculatedExpression value is boolean
+          onChangeByCalcExpressionBoolean(calcExpression.value);
           return () => clearTimeout(timeoutId);
         }
-
-        // calculatedExpression value is boolean
-        onChangeByCalcExpressionBoolean(calcExpression.value);
-        return () => clearTimeout(timeoutId);
       }
+      return () => {};
     },
     // Only trigger this effect if calculatedExpression of item changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

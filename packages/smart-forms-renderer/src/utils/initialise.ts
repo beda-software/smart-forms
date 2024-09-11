@@ -278,7 +278,7 @@ function createNewQuestionnaireResponseItem(
   qItem: QuestionnaireItem,
   initialValueAnswers: QuestionnaireResponseItemAnswer[]
 ): QuestionnaireResponseItem | null {
-  if (initialValueAnswers.length === 0) {
+  if (!initialValueAnswers[0]) {
     return null;
   }
 

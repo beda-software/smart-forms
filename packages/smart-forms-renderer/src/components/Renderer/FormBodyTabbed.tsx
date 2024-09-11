@@ -84,7 +84,7 @@ function FormBodyTabbed(props: FormBodyTabbedProps) {
             }
 
             const isRepeated = qItem.repeats ?? false;
-            const tabIsMarkedAsComplete = tabs[qItem.linkId].isComplete ?? false;
+            const tabIsMarkedAsComplete = tabs[qItem.linkId]?.isComplete ?? false;
 
             return (
               <TabPanel
