@@ -116,7 +116,7 @@ function useQuantityCalculatedExpression(
               const ucumValueSet = 'http://hl7.org/fhir/ValueSet/ucum-units';
               const ucumSystem = 'http://unitsofmeasure.org';
 
-              if (!value || !unitCodeFormatted) {
+              if (value === undefined || unitCodeFormatted === undefined) {
                 onChangeByCalcExpressionNull();
                 return;
               }

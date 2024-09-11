@@ -40,7 +40,7 @@ function useDateValidation(input: string, parseFail: boolean = false): string | 
     }
 
     const matches = input.split('/');
-    if (!matches[0] || !matches[1] || !matches[2]) {
+    if (matches[0] === undefined || matches[1] === undefined || matches[2] === undefined) {
       return 'Input is an invalid date.';
     }
 
@@ -58,7 +58,7 @@ function useDateValidation(input: string, parseFail: boolean = false): string | 
     }
 
     const matches = input.split('/');
-    if (!matches[0] || !matches[1]) {
+    if (matches[0] === undefined || matches[1] === undefined) {
       return 'Input is an invalid date.';
     }
 

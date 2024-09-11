@@ -88,7 +88,7 @@ function evaluateEnableWhenSingleExpressions(
     const enableWhenSingleExpression = enableWhenSingleExpressions[linkId];
     const initialValue = enableWhenSingleExpression?.isEnabled;
     const expression = enableWhenSingleExpression?.expression;
-    if (!enableWhenSingleExpression || !expression) {
+    if (!enableWhenSingleExpression || expression === undefined) {
       continue;
     }
 

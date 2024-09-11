@@ -56,7 +56,7 @@ export function getQrItemsIndex(
 
       // Assign either a qrItem array or a single qrItem based on whether it is a repeatGroup or not
       let isRepeatGroup = false;
-      if (qItemIndex) {
+      if (typeof qItemIndex === 'number') {
         const qItemAtIndex = qItems[qItemIndex];
         if (qItemAtIndex) {
           isRepeatGroup = isRepeatItemAndNotCheckbox(qItemAtIndex) && qItemAtIndex.type === 'group';

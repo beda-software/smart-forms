@@ -115,14 +115,14 @@ export function updateQrItemsInGroup(
     }
 
     const newQrItemIndex = qItemsIndexMap[newQrItem.linkId];
-    if (!newQrItemIndex) {
+    if (newQrItemIndex === undefined) {
       return;
     }
 
     // Get actual sequence index of qrItem within qrGroup
     for (let i = 0; i < qrItemsRealIndexArr.length; i++) {
       const currentRealIndex = qrItemsRealIndexArr[i];
-      if (!currentRealIndex) {
+      if (currentRealIndex === undefined) {
         continue;
       }
 
@@ -164,13 +164,13 @@ export function updateQrItemsInGroup(
 
     // Get actual sequence index of qrItems within qrGroup
     const newQrItemIndex = qItemsIndexMap[newQrRepeatGroup.linkId];
-    if (!newQrItemIndex) {
+    if (newQrItemIndex === undefined) {
       return;
     }
 
     for (let i = 0; i < qrItemsRealIndexArr.length; i++) {
       const currentRealIndex = qrItemsRealIndexArr[i];
-      if (!currentRealIndex) {
+      if (currentRealIndex === undefined) {
         continue;
       }
 

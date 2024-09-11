@@ -23,9 +23,9 @@ test('item.initial is properly pre-filled into QuestionnaireResponse', () => {
   const outputResponse = initialiseQuestionnaireResponse(qInitialValueSample);
 
   expect(outputResponse?.item?.[0]).toBeTruthy();
-  expect(outputResponse?.item?.[0].item?.[0]).toBeTruthy();
-  expect(outputResponse?.item?.[0].item?.[0].item?.[0]).toBeTruthy();
-  expect(outputResponse?.item?.[0].item?.[0].item?.[0].item?.[0].answer?.[0]).toStrictEqual({
+  expect(outputResponse?.item?.[0]?.item?.[0]).toBeTruthy();
+  expect(outputResponse?.item?.[0]?.item?.[0]?.item?.[0]).toBeTruthy();
+  expect(outputResponse?.item?.[0]?.item?.[0]?.item?.[0]?.item?.[0]?.answer?.[0]).toStrictEqual({
     valueCoding: {
       system: 'http://snomed.info/sct',
       code: '373066001'
