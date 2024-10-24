@@ -42,11 +42,13 @@ export {
   destroyForm,
   getResponse,
   removeEmptyAnswersFromResponse,
+  removeInternalIdsFromResponse,
   isSpecificItemControl,
   isRepeatItemAndNotCheckbox,
   initialiseQuestionnaireResponse,
   generateItemsToRepopulate,
-  repopulateResponse
+  repopulateResponse,
+  extractObservationBased
 } from './utils';
 
 // theme provider exports

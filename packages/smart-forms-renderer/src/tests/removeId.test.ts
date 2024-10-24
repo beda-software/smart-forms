@@ -15,28 +15,13 @@
  * limitations under the License.
  */
 
-import type { QuestionnaireResponseItem } from 'fhir/r4';
-import { nanoid } from 'nanoid';
-import type { GroupTableRowModel } from '../interfaces/groupTable.interface';
+import { expect, test } from '@jest/globals';
+import { removeInternalIdsFromResponse } from '../utils';
+import { qrRemoveIdResult, qrRemoveIdSample } from './test-data/removeIdSample';
+import { qMyPatient } from '../stories/assets/questionnaires/QIdRemoverDebugger';
 
-function useInitialiseGroupTable(qrItems: QuestionnaireResponseItem[]): GroupTableRowModel[] {
-  let initialGroupTableRows: GroupTableRowModel[] = [
-    {
-      nanoId: nanoid(),
-      qrItem: null
-    }
-  ];
+test('item.initial is properly pre-filled into QuestionnaireResponse', () => {
+  const outputResponse = removeInternalIdsFromResponse(qMyPatient, qrRemoveIdSample);
 
-  if (qrItems.length > 0) {
-    initialGroupTableRows = qrItems.map((qrItem) => {
-      return {
-        nanoId: nanoid(),
-        qrItem
-      };
-    });
-  }
-
-  return initialGroupTableRows;
-}
-
-export default useInitialiseGroupTable;
+  expect(outputResponse).toStrictEqual(qrRemoveIdResult);
+});

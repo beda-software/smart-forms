@@ -41,7 +41,6 @@ import {
 import { createQuestionnaireModel } from '../utils/questionnaireStoreUtils/createQuestionaireModel';
 import { initialiseFormFromResponse } from '../utils/initialise';
 import { emptyQuestionnaire, emptyResponse } from '../utils/emptyResource';
-import cloneDeep from 'lodash.clonedeep';
 import { terminologyServerStore } from './terminologyServerStore';
 import { createSelectors } from './selector';
 import { mutateRepeatEnableWhenExpressionInstances } from '../utils/enableWhenExpression';
@@ -57,6 +56,7 @@ import type { InitialExpression } from '../interfaces/initialExpression.interfac
  *
  * @property sourceQuestionnaire - FHIR R4 Questionnaire to render
  * @property itemTypes - Key-value pair of item types `Record<linkId, item.type>`
+ * @property itemPreferredTerminologyServers - Key-value pair of item types `Record<linkId, preferred terminology servers>`
  * @property tabs - Key-value pair of tabs `Record<linkId, Tab>`
  * @property currentTabIndex - Index of the current tab
  * @property pages - Key-value pair of pages `Record<linkId, Page>`
@@ -97,6 +97,7 @@ import type { InitialExpression } from '../interfaces/initialExpression.interfac
 export interface QuestionnaireStoreType {
   sourceQuestionnaire: Questionnaire;
   itemTypes: Record<string, string>;
+  itemPreferredTerminologyServers: Record<string, string>;
   tabs: Tabs;
   currentTabIndex: number;
   pages: Pages;
@@ -160,8 +161,9 @@ export interface QuestionnaireStoreType {
  * @author Sean Fong
  */
 export const questionnaireStore = createStore<QuestionnaireStoreType>()((set, get) => ({
-  sourceQuestionnaire: cloneDeep(emptyQuestionnaire),
+  sourceQuestionnaire: structuredClone(emptyQuestionnaire),
   itemTypes: {},
+  itemPreferredTerminologyServers: {},
   tabs: {},
   currentTabIndex: 0,
   pages: {},
@@ -184,7 +186,7 @@ export const questionnaireStore = createStore<QuestionnaireStoreType>()((set, ge
   readOnly: false,
   buildSourceQuestionnaire: async (
     questionnaire,
-    questionnaireResponse = cloneDeep(emptyResponse),
+    questionnaireResponse = structuredClone(emptyResponse),
     additionalVariables = {},
     terminologyServerUrl = terminologyServerStore.getState().url,
     readOnly = false
@@ -224,6 +226,7 @@ export const questionnaireStore = createStore<QuestionnaireStoreType>()((set, ge
     set({
       sourceQuestionnaire: questionnaire,
       itemTypes: questionnaireModel.itemTypes,
+      itemPreferredTerminologyServers: questionnaireModel.itemPreferredTerminologyServers,
       tabs: questionnaireModel.tabs,
       currentTabIndex: firstVisibleTab,
       pages: questionnaireModel.pages,
@@ -244,8 +247,9 @@ export const questionnaireStore = createStore<QuestionnaireStoreType>()((set, ge
   },
   destroySourceQuestionnaire: () =>
     set({
-      sourceQuestionnaire: cloneDeep(emptyQuestionnaire),
+      sourceQuestionnaire: structuredClone(emptyQuestionnaire),
       itemTypes: {},
+      itemPreferredTerminologyServers: {},
       tabs: {},
       currentTabIndex: 0,
       pages: {},

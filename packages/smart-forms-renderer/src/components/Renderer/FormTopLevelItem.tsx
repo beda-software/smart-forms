@@ -34,8 +34,10 @@ import useHidden from '../../hooks/useHidden';
 import GroupItemSwitcher from '../FormComponents/GroupItem/GroupItemSwitcher';
 import useReadOnly from '../../hooks/useReadOnly';
 import Box from '@mui/material/Box';
-import { isSpecificItemControl } from '../../utils';
+import { isRepeatItemAndNotCheckbox, isSpecificItemControl } from '../../utils';
 import GroupTable from '../FormComponents/Tables/GroupTable';
+import RepeatItem from '../FormComponents/RepeatItem/RepeatItem';
+import GridGroup from '../FormComponents/GridGroup/GridGroup';
 
 interface FormTopLevelItemProps
   extends PropsWithQrItemChangeHandler,
@@ -127,6 +129,20 @@ function FormTopLevelItem(props: FormTopLevelItemProps) {
 
   // If form is untabbed, it is rendered as a regular group
   if (itemIsGroup) {
+    // Item is 'grid'
+    const itemIsGrid = isSpecificItemControl(topLevelQItem, 'grid');
+    if (itemIsGrid) {
+      return (
+        <GridGroup
+          qItem={topLevelQItem}
+          qrItem={topLevelQRItem}
+          groupCardElevation={1}
+          parentIsReadOnly={parentIsReadOnly}
+          onQrItemChange={onQrItemChange}
+        />
+      );
+    }
+
     // GroupTable "gtable" can be rendered with either repeats:true or false
     if (isSpecificItemControl(topLevelQItem, 'gtable')) {
       return (
@@ -156,6 +172,22 @@ function FormTopLevelItem(props: FormTopLevelItemProps) {
   }
 
   // Otherwise, it is rendered as a non-group item
+  const itemRepeatsAndIsNotCheckbox = isRepeatItemAndNotCheckbox(topLevelQItem);
+  if (itemRepeatsAndIsNotCheckbox) {
+    return (
+      <Box mt={1}>
+        <RepeatItem
+          key={topLevelQItem.linkId}
+          qItem={topLevelQItem}
+          qrItem={topLevelQRItem}
+          groupCardElevation={1}
+          parentIsReadOnly={readOnly}
+          onQrItemChange={onQrItemChange}
+        />
+      </Box>
+    );
+  }
+
   return (
     <Box mt={1}>
       <SingleItem

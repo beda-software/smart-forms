@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import type { Extension, Questionnaire, QuestionnaireItem } from 'fhir/r4';
+import type { BackboneElement, Extension, Questionnaire, QuestionnaireItem } from 'fhir/r4';
 import { getChoiceControlType } from './choice';
 import { ChoiceItemControl, OpenChoiceItemControl } from '../interfaces/choice.enum';
 import { getOpenChoiceControlType } from './openChoice';
@@ -74,6 +74,12 @@ export function isHiddenByEnableWhen(params: isHiddenByEnableWhensParams): boole
  * @author Sean Fong
  */
 export function isRepeatItemAndNotCheckbox(qItem: QuestionnaireItem): boolean {
+  // Prevents form from crashing due to mismatched Q and QR
+  // In reality this should never happen
+  if (!qItem) {
+    return false;
+  }
+
   const isCheckbox =
     getChoiceControlType(qItem) === ChoiceItemControl.Checkbox ||
     getOpenChoiceControlType(qItem) === OpenChoiceItemControl.Checkbox;
@@ -118,6 +124,73 @@ export function getLinkIdTypeTuplesFromItemRecursive(qItem: QuestionnaireItem): 
   if (qItem.item) {
     for (const childItem of qItem.item) {
       linkIds.push(...getLinkIdTypeTuplesFromItemRecursive(childItem));
+    }
+  }
+
+  return linkIds;
+}
+
+function getPreferredTerminologyServer(element: BackboneElement): string | null {
+  const preferredTerminologyServerExtension = element.extension?.find(
+    (ext) =>
+      ext.url ===
+      'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-preferredTerminologyServer'
+  );
+
+  if (preferredTerminologyServerExtension) {
+    return (
+      preferredTerminologyServerExtension.valueUrl ??
+      preferredTerminologyServerExtension.valueString ??
+      null
+    );
+  }
+
+  return null;
+}
+
+export function getLinkIdPreferredTerminologyServerTuples(
+  questionnaire: Questionnaire
+): [string, string][] {
+  if (!questionnaire.item || questionnaire.item.length === 0) {
+    return [];
+  }
+
+  const preferredTerminologyServer = getPreferredTerminologyServer(questionnaire);
+
+  const linkIds: [string, string][] = [];
+  for (const topLevelItem of questionnaire.item) {
+    linkIds.push(
+      ...getLinkIdPreferredTerminologyServerTuplesRecursive(
+        topLevelItem,
+        preferredTerminologyServer
+      )
+    );
+  }
+
+  return linkIds;
+}
+
+function getLinkIdPreferredTerminologyServerTuplesRecursive(
+  qItem: QuestionnaireItem,
+  parentPreferredTerminologyServer: string | null
+): [string, string][] {
+  const linkIds: [string, string][] = [];
+
+  let preferredTerminologyServer = null;
+  if (qItem.linkId) {
+    preferredTerminologyServer =
+      getPreferredTerminologyServer(qItem) ?? parentPreferredTerminologyServer ?? null;
+
+    if (preferredTerminologyServer) {
+      linkIds.push([qItem.linkId, preferredTerminologyServer]);
+    }
+  }
+
+  if (qItem.item) {
+    for (const childItem of qItem.item) {
+      linkIds.push(
+        ...getLinkIdPreferredTerminologyServerTuplesRecursive(childItem, preferredTerminologyServer)
+      );
     }
   }
 

@@ -50,6 +50,7 @@
 | [SmartFormsRenderer](functions/SmartFormsRenderer.md) | A self-initialising wrapper around the BaseRenderer rendering engine. |
 | [buildForm](functions/buildForm.md) | Build the form with an initial Questionnaire and an optional filled QuestionnaireResponse. |
 | [destroyForm](functions/destroyForm.md) | Destroy the form to clean up the questionnaire and questionnaireResponse stores. |
+| [extractObservationBased](functions/extractObservationBased.md) | Extract an array of Observations from a QuestionnaireResponse and its source Questionnaire. |
 | [generateItemsToRepopulate](functions/generateItemsToRepopulate.md) | Compare latest data from the server with the current QuestionnaireResponse and decide items to re-populate |
 | [getResponse](functions/getResponse.md) | Get the filled QuestionnaireResponse at its current state. |
 | [initialiseQuestionnaireResponse](functions/initialiseQuestionnaireResponse.md) | Initialise a questionnaireResponse from a given questionnaire |
@@ -57,6 +58,7 @@
 | [isSpecificItemControl](functions/isSpecificItemControl.md) | Check if the extension has an itemControl code equal to the given itemControlCode |
 | [parseFhirDateToDisplayDate](functions/parseFhirDateToDisplayDate.md) | Parse a FHIR date string to a date to be consumed and displayed by the DateItem component. |
 | [removeEmptyAnswersFromResponse](functions/removeEmptyAnswersFromResponse.md) | Remove all empty/hidden answers from the filled QuestionnaireResponse. |
+| [removeInternalIdsFromResponse](functions/removeInternalIdsFromResponse.md) | Remove all instances of item.answer.id from the filled QuestionnaireResponse. |
 | [repopulateResponse](functions/repopulateResponse.md) | Re-populate checked items in the re-population dialog into the current QuestionnaireResponse |
 | [useBuildForm](functions/useBuildForm.md) | React hook wrapping around the buildForm() function to build a form from a questionnaire and an optional QuestionnaireResponse. |
 | [useHidden](functions/useHidden.md) | React hook to determine if a QuestionnaireItem is hidden via item.hidden, enableWhens, enableWhenExpressions. |

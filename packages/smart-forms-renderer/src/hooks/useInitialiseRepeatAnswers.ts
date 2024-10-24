@@ -16,26 +16,23 @@
  */
 
 import type { QuestionnaireResponseItem, QuestionnaireResponseItemAnswer } from 'fhir/r4';
-import { nanoid } from 'nanoid';
 import { useMemo } from 'react';
+import { generateExistingRepeatId, generateNewRepeatId } from '../utils/repeatId';
 
 function useInitialiseRepeatAnswers(
+  linkId: string,
   qrItem: QuestionnaireResponseItem | null
 ): (QuestionnaireResponseItemAnswer | null)[] {
   return useMemo(() => {
-    let initialRepeatAnswers: (QuestionnaireResponseItemAnswer | null)[] = [{ id: nanoid() }];
-
-    if (qrItem?.answer) {
-      initialRepeatAnswers = qrItem.answer.map((answer) => {
-        if (!answer.id) {
-          answer.id = nanoid();
-        }
-        return answer;
-      });
+    if (!qrItem?.answer) {
+      return [{ id: generateNewRepeatId(linkId) }];
     }
 
-    return initialRepeatAnswers;
-  }, [qrItem]);
+    return qrItem.answer.map((answer, index) => ({
+      ...answer,
+      id: answer.id ?? generateExistingRepeatId(linkId, index)
+    }));
+  }, [linkId, qrItem]);
 }
 
 export default useInitialiseRepeatAnswers;

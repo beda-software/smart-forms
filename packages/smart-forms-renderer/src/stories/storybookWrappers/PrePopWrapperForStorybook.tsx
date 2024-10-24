@@ -51,7 +51,12 @@ function PrePopWrapperForStorybook(props: PrePopWrapperForStorybookProps) {
 
   const [isPopulating, setIsPopulating] = useState(false);
 
-  const isBuilding = useBuildForm(questionnaire);
+  const isBuilding = useBuildForm(
+    questionnaire,
+    undefined,
+    undefined,
+    STORYBOOK_TERMINOLOGY_SERVER_URL
+  );
 
   const queryClient = useRendererQueryClient();
 

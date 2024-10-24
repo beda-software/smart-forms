@@ -180,6 +180,11 @@ const typedocSidebar = { items: [
       },
       {
         "type": "doc",
+        "id": "api/smart-forms-renderer/functions/extractObservationBased",
+        "label": "extractObservationBased"
+      },
+      {
+        "type": "doc",
         "id": "api/smart-forms-renderer/functions/generateItemsToRepopulate",
         "label": "generateItemsToRepopulate"
       },
@@ -212,6 +217,11 @@ const typedocSidebar = { items: [
         "type": "doc",
         "id": "api/smart-forms-renderer/functions/removeEmptyAnswersFromResponse",
         "label": "removeEmptyAnswersFromResponse"
+      },
+      {
+        "type": "doc",
+        "id": "api/smart-forms-renderer/functions/removeInternalIdsFromResponse",
+        "label": "removeInternalIdsFromResponse"
       },
       {
         "type": "doc",

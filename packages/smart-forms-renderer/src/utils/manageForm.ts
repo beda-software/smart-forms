@@ -9,6 +9,8 @@ import { initialiseQuestionnaireResponse } from './initialise';
 import { removeEmptyAnswers } from './removeEmptyAnswers';
 import { readEncounter, readPatient, readUser } from '../api/smartClient';
 import type Client from 'fhirclient/lib/Client';
+import { updateQuestionnaireResponse } from './genericRecursive';
+import { removeInternalRepeatIdsRecursive } from './removeRepeatId';
 
 /**
  * Build the form with an initial Questionnaire and an optional filled QuestionnaireResponse.
@@ -95,7 +97,11 @@ export async function initialiseFhirClient(fhirClient: Client): Promise<void> {
  * @author Sean Fong
  */
 export function getResponse(): QuestionnaireResponse {
-  return questionnaireResponseStore.getState().updatableResponse;
+  const cleanResponse = removeInternalIdsFromResponse(
+    questionnaireStore.getState().sourceQuestionnaire,
+    questionnaireResponseStore.getState().updatableResponse
+  );
+  return structuredClone(cleanResponse);
 }
 
 /**
@@ -120,6 +126,26 @@ export function removeEmptyAnswersFromResponse(
     enableWhenItems,
     enableWhenExpressions
   });
+}
+
+/**
+ * Remove all instances of item.answer.id from the filled QuestionnaireResponse.
+ * These IDs are used internally for rendering repeating items, and can be safely left out of the final response.
+ *
+ * @author Sean Fong
+ */
+export function removeInternalIdsFromResponse(
+  questionnaire: Questionnaire,
+  questionnaireResponse: QuestionnaireResponse
+): QuestionnaireResponse {
+  const questionnaireResponseToUpdate = structuredClone(questionnaireResponse);
+
+  return updateQuestionnaireResponse(
+    questionnaire,
+    questionnaireResponseToUpdate,
+    removeInternalRepeatIdsRecursive,
+    undefined
+  );
 }
 
 /**

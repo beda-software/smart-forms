@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type {
   PropsWithParentIsReadOnlyAttribute,
   PropsWithParentIsRepeatGroupAttribute,
@@ -24,11 +24,9 @@ import type {
 } from '../../../interfaces/renderProps.interface';
 import type { QuestionnaireItem, QuestionnaireResponseItem } from 'fhir/r4';
 import useInitialiseRepeatGroups from '../../../hooks/useInitialiseRepeatGroups';
-import { nanoid } from 'nanoid';
-import cloneDeep from 'lodash.clonedeep';
 import { useQuestionnaireStore } from '../../../stores';
-import useRepeatGroups from '../../../hooks/useRepeatGroups';
 import RepeatGroupView from './RepeatGroupView';
+import { generateNewRepeatId } from '../../../utils/repeatId';
 
 interface RepeatGroupProps
   extends PropsWithQrRepeatGroupChangeHandler,
@@ -58,9 +56,9 @@ function RepeatGroup(props: RepeatGroupProps) {
 
   const mutateRepeatEnableWhenItems = useQuestionnaireStore.use.mutateRepeatEnableWhenItems();
 
-  const initialRepeatGroups = useInitialiseRepeatGroups(qItem, qrItems);
+  const initialRepeatGroups = useInitialiseRepeatGroups(qItem.linkId, qrItems);
 
-  const [repeatGroups, setRepeatGroups] = useRepeatGroups(initialRepeatGroups);
+  const [repeatGroups, setRepeatGroups] = useState(initialRepeatGroups);
 
   function handleAnswerChange(newQrItem: QuestionnaireResponseItem, index: number) {
     const updatedRepeatGroups = [...repeatGroups];
@@ -77,7 +75,7 @@ function RepeatGroup(props: RepeatGroupProps) {
     onQrRepeatGroupChange({
       linkId: qItem.linkId,
       qrItems: updatedRepeatGroups.flatMap((singleGroup) =>
-        singleGroup.qrItem ? [cloneDeep(singleGroup.qrItem)] : []
+        singleGroup.qrItem ? [structuredClone(singleGroup.qrItem)] : []
       )
     });
   }
@@ -93,7 +91,7 @@ function RepeatGroup(props: RepeatGroupProps) {
     onQrRepeatGroupChange({
       linkId: qItem.linkId,
       qrItems: updatedRepeatGroups.flatMap((singleGroup) =>
-        singleGroup.qrItem ? [cloneDeep(singleGroup.qrItem)] : []
+        singleGroup.qrItem ? [structuredClone(singleGroup.qrItem)] : []
       )
     });
   }
@@ -104,7 +102,7 @@ function RepeatGroup(props: RepeatGroupProps) {
     setRepeatGroups([
       ...repeatGroups,
       {
-        nanoId: nanoid(),
+        id: generateNewRepeatId(qItem.linkId),
         qrItem: null
       }
     ]);

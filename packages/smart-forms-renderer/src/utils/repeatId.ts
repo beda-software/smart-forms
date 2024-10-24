@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Commonwealth Scientific and Industrial Research
+ * Copyright 2024 Commonwealth Scientific and Industrial Research
  * Organisation (CSIRO) ABN 41 687 119 230.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,26 +15,13 @@
  * limitations under the License.
  */
 
-.margin-y {
-  margin-top: 1em;
-  margin-bottom: 1em;
+import { nanoid } from 'nanoid';
+
+export function generateNewRepeatId(linkId: string): string {
+  return `${linkId}-repeat-${nanoid()}`;
 }
 
-.increase-button-hitbox {
-  margin: 0 0 8px;
-  cursor: pointer;
-}
-
-.fade-in {
-  opacity: 0;
-  animation: fadeIn 0.5s ease-in-out 5s forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+export function generateExistingRepeatId(linkId: string, index: number): string {
+  const paddedIndex = index.toString().padStart(6, '0');
+  return `${linkId}-repeat-${paddedIndex}`;
 }

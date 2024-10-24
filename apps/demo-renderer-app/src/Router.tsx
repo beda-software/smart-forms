@@ -15,25 +15,20 @@
  * limitations under the License.
  */
 
-import type { Dispatch, SetStateAction } from 'react';
-import { useEffect, useState } from 'react';
+import useQuestionnaireUrl from '@/hooks/useQuestionnaireUrl.ts';
+import useBearerToken from '@/hooks/useBearerToken.ts';
+import InputQuestionnaire from '@/components/InputQuestionnaire.tsx';
+import Home from '@/components/Home.tsx';
 
-// The purpose of this hook to sync the string state from external changes i.e. re-population changes etc.
-function useStringInput(valueFromProps: string): [string, Dispatch<SetStateAction<string>>] {
-  const [input, setInput] = useState(valueFromProps);
+function Router() {
+  const questionnaireUrl = useQuestionnaireUrl();
+  const bearerToken = useBearerToken();
 
-  useEffect(
-    () => {
-      if (input !== valueFromProps) {
-        setInput(valueFromProps);
-      }
-    },
-    // Only trigger this effect if prop value changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [valueFromProps]
-  );
+  if (questionnaireUrl === '' || questionnaireUrl === null) {
+    return <InputQuestionnaire bearerToken={bearerToken} />;
+  }
 
-  return [input, setInput];
+  return <Home questionnaireUrl={questionnaireUrl} bearerToken={bearerToken} />;
 }
 
-export default useStringInput;
+export default Router;
