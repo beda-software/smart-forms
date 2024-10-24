@@ -22,7 +22,6 @@ import dayjs from 'dayjs';
 import { qrToHTML } from '../features/preview/utils/preview.ts';
 import { fetchQuestionnaireById } from './client.ts';
 import { HEADERS } from './headers.ts';
-import { removeEmptyAnswersFromResponse } from '@aehrc/smart-forms-renderer';
 
 /**
  * POST questionnaire to SMART Health IT when opening it to ensure response-saving can be performed
@@ -54,10 +53,13 @@ export async function saveProgress(
   questionnaireResponse: QuestionnaireResponse,
   saveStatus: 'in-progress' | 'completed'
 ) {
-  const responseToSave = removeEmptyAnswersFromResponse(
-    questionnaire,
-    structuredClone(questionnaireResponse)
-  );
+  // Temporarily comment out this line to avoid saving errors
+  // const responseToSave = removeEmptyAnswersFromResponse(
+  //   questionnaire,
+  //   structuredClone(questionnaireResponse)
+  // );
+
+  const responseToSave = structuredClone(questionnaireResponse);
 
   responseToSave.status = saveStatus;
 
