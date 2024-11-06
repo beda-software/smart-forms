@@ -28,11 +28,7 @@ import {
 } from '@mui/material';
 import { saveQuestionnaireResponse } from '../../../../api/saveQr.ts';
 import { LoadingButton } from '@mui/lab';
-import {
-  removeEmptyAnswersFromResponse,
-  useQuestionnaireResponseStore,
-  useQuestionnaireStore
-} from '@aehrc/smart-forms-renderer';
+import { useQuestionnaireResponseStore, useQuestionnaireStore } from '@aehrc/smart-forms-renderer';
 import useSmartClient from '../../../../hooks/useSmartClient.ts';
 
 export interface Props {
@@ -77,8 +73,13 @@ function BlockerUnsavedFormDialog(props: Props) {
 
     setIsSaving(true);
 
-    let responseToSave = structuredClone(updatableResponse);
-    responseToSave = removeEmptyAnswersFromResponse(sourceQuestionnaire, responseToSave);
+    const responseToSave = structuredClone(updatableResponse);
+
+    // Temporarily comment out this line to avoid saving errors
+    // responseToSave = removeEmptyAnswersFromResponse(
+    //   questionnaire,
+    //   responseToSave
+    // );
 
     setIsSaving(true);
     responseToSave.status = 'in-progress';

@@ -29,11 +29,7 @@ import {
   Tooltip
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import {
-  removeEmptyAnswersFromResponse,
-  useQuestionnaireResponseStore,
-  useQuestionnaireStore
-} from '@aehrc/smart-forms-renderer';
+import { useQuestionnaireResponseStore, useQuestionnaireStore } from '@aehrc/smart-forms-renderer';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import { saveQuestionnaireResponse } from '../../../api/saveQr.ts';
 import useSmartClient from '../../../hooks/useSmartClient.ts';
@@ -75,10 +71,12 @@ function TokenTimerDialog(props: TokenTimerDialogProps) {
     }
 
     setIsSaving(true);
-    const responseToSave = removeEmptyAnswersFromResponse(
-      sourceQuestionnaire,
-      structuredClone(updatableResponse)
-    );
+    const responseToSave = structuredClone(updatableResponse);
+    // Temporarily comment out this line to avoid saving errors
+    // const responseToSave = removeEmptyAnswersFromResponse(
+    //   sourceQuestionnaire,
+    //   structuredClone(updatableResponse)
+    // );
 
     responseToSave.status = 'in-progress';
     saveQuestionnaireResponse(smartClient, patient, user, sourceQuestionnaire, responseToSave)

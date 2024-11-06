@@ -17,11 +17,7 @@
 
 import { useEffect } from 'react';
 import { Dialog, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import {
-  removeEmptyAnswersFromResponse,
-  useQuestionnaireResponseStore,
-  useQuestionnaireStore
-} from '@aehrc/smart-forms-renderer';
+import { useQuestionnaireResponseStore, useQuestionnaireStore } from '@aehrc/smart-forms-renderer';
 import { saveQuestionnaireResponse } from '../../../api/saveQr.ts';
 import { useSnackbar } from 'notistack';
 import useSmartClient from '../../../hooks/useSmartClient.ts';
@@ -54,10 +50,13 @@ function AutoSaveDialog(props: AutoSaveDialogProps) {
       return;
     }
 
-    const responseToSave = removeEmptyAnswersFromResponse(
-      sourceQuestionnaire,
-      structuredClone(updatableResponse)
-    );
+    // Temporarily comment out this line to avoid saving errors
+    // const responseToSave = removeEmptyAnswersFromResponse(
+    //   questionnaire,
+    //   structuredClone(updatableResponse)
+    // );
+
+    const responseToSave = structuredClone(updatableResponse);
 
     responseToSave.status = 'in-progress';
     saveQuestionnaireResponse(smartClient, patient, user, sourceQuestionnaire, responseToSave)

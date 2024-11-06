@@ -21,11 +21,7 @@ import parse from 'html-react-parser';
 import { qrToHTML } from '../../../preview/utils/preview.ts';
 import { Helmet } from 'react-helmet';
 import PageHeading from '../../../dashboard/components/DashboardPages/PageHeading.tsx';
-import {
-  removeEmptyAnswersFromResponse,
-  useQuestionnaireResponseStore,
-  useQuestionnaireStore
-} from '@aehrc/smart-forms-renderer';
+import { useQuestionnaireResponseStore, useQuestionnaireStore } from '@aehrc/smart-forms-renderer';
 
 function FormPreview() {
   const sourceQuestionnaire = useQuestionnaireStore.use.sourceQuestionnaire();
@@ -39,8 +35,13 @@ function FormPreview() {
     return <FormInvalid />;
   }
 
-  const cleanResponse = removeEmptyAnswersFromResponse(sourceQuestionnaire, updatableResponse);
-  const parsedHTML = parse(qrToHTML(sourceQuestionnaire, cleanResponse));
+  // Temporarily comment out this line to avoid saving errors
+  // const cleanResponse = removeEmptyAnswersFromResponse(
+  //   questionnaire,
+  //   updatableResponse
+  // );
+
+  const parsedHTML = parse(qrToHTML(sourceQuestionnaire, updatableResponse));
 
   return (
     <>
