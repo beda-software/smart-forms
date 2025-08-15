@@ -2,9 +2,8 @@
   "name": "@aehrc/smart-forms-renderer",
   "version": "1.0.0-alpha.92",
   "description": "FHIR Structured Data Captured (SDC) rendering engine for Smart Forms",
-  "main": "lib/index.js",
   "scripts": {
-    "compile": "tsc",
+    "compile": "tsup src/index.ts --format cjs,esm --dts --clean --sourcemap",
     "watch": "tsc -w",
     "build": "npm run compile",
     "test": "TZ=Australia/Sydney jest --config ./jest.config.ts --coverage",
@@ -94,5 +93,19 @@
     "tslib": "^2.8.1",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
   }
 }

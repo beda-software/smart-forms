@@ -15,20 +15,22 @@
  * limitations under the License.
  */
 
-import type { Config } from 'jest';
+import type { Config } from '@jest/types';
 
-const config: Config = {
-  verbose: true,
-  roots: ['<rootDir>'],
-  transform: {
-    '^.+\\.ts?$': 'ts-jest'
-  },
-  // Exclude "spec" folder
-  testRegex: '(/__tests__/.*|(\\.|/)(test))\\.ts?$',
-  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-  collectCoverage: true,
-  clearMocks: true,
-  coverageDirectory: 'coverage'
+const config: Config.InitialOptions = {
+  preset: 'ts-jest',
+  testEnvironment: 'jsdom',
+  testRegex: '(/tests/.*|(\\.|/)(test|spec))\\.(ts|tsx)$',
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node','css'],
+   moduleNameMapper: {
+  '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+  '\\.(woff|woff2|eot|ttf|otf)$': './src/mocks/fileMocks.js',
+},
+  transformIgnorePatterns: [
+    'node_modules/(?!(@aehrc/smart-forms-renderer|@fontsource)/)',
+    'node_modules/(?!(@fontsource)/)' 
+  ],
+  
 };
 
 export default config;
