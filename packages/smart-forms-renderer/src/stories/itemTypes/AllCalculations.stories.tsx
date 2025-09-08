@@ -52,7 +52,7 @@ const qBooleanCalculation = questionnaireExtFactory(
       readOnly: true
     }
   ],
-  [variableExtFactory("item.where(linkId = 'gender-controller').answer.valueCoding.code")]
+  [variableExtFactory("item.where(linkId = 'gender-controller').answer.valueCoding.code", 'gender')]
 );
 
 const targetlinkId = 'gender-controller';

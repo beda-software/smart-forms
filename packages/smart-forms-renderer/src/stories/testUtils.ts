@@ -82,11 +82,11 @@ export function calculatedExpressionExtFactory(text: string): Extension {
   };
 }
 
-export function variableExtFactory(text: string): Extension {
+export function variableExtFactory(text: string, name: string): Extension {
   return {
     url: 'http://hl7.org/fhir/StructureDefinition/variable',
     valueExpression: {
-      name: 'gender',
+      name: name,
       language: 'text/fhirpath',
       expression: text
     }
