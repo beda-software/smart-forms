@@ -2,6 +2,7 @@ import { evaluate } from 'fhirpath';
 import { questionnaireResponseStore } from '../stores';
 import type {
   Extension,
+  FhirResource,
   Questionnaire,
   QuestionnaireItem,
   QuestionnaireResponse,
@@ -28,13 +29,15 @@ export async function getGroupAnswers(groupLinkid: string, answerLinkid: string)
 
 export function questionnaireFactory(
   items: QuestionnaireItem[],
-  extension?: Extension[]
+  extension?: Extension[],
+  contained?: FhirResource[]
 ): Questionnaire {
   return {
     resourceType: 'Questionnaire',
     status: 'active',
     item: items,
-    extension: extension
+    extension: extension,
+    contained: contained
   };
 }
 
