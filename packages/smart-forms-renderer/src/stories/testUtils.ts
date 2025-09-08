@@ -26,20 +26,13 @@ export async function getGroupAnswers(groupLinkid: string, answerLinkid: string)
   return result;
 }
 
-export function questionnaireFactory(items: QuestionnaireItem[]): Questionnaire {
-  return {
-    resourceType: 'Questionnaire',
-    status: 'active',
-    item: items
-  };
-}
-export function questionnaireExtFactory(
+export function questionnaireFactory(
   items: QuestionnaireItem[],
-  extension: Extension[]
+  extension?: Extension[]
 ): Questionnaire {
   return {
     resourceType: 'Questionnaire',
-    status: 'draft',
+    status: 'active',
     item: items,
     extension: extension
   };
@@ -82,7 +75,7 @@ export function calculatedExpressionExtFactory(text: string): Extension {
   };
 }
 
-export function variableExtFactory(text: string, name: string): Extension {
+export function variableExtFactory(name: string, text: string): Extension {
   return {
     url: 'http://hl7.org/fhir/StructureDefinition/variable',
     valueExpression: {

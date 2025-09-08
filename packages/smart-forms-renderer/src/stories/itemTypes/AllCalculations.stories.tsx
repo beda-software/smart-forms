@@ -3,11 +3,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import BuildFormWrapperForStorybook from '../storybookWrappers/BuildFormWrapperForStorybook';
 import {
   calculatedExpressionExtFactory,
-  getAnswers,
-  questionnaireExtFactory,
+  questionnaireFactory,
   variableExtFactory
 } from '../testUtils';
-import { chooseSelectOption } from '@aehrc/testing-toolkit';
+import { chooseSelectOption, findByLinkId } from '@aehrc/testing-toolkit';
 import { expect } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -26,10 +25,13 @@ const targetCoding = {
   code: 'female',
   display: 'Female'
 };
-const qBooleanCalculation = questionnaireExtFactory(
+const targetlinkId = 'gender-controller';
+const targetlinkIdCalc = 'gender-is-female';
+
+const qBooleanCalculation = questionnaireFactory(
   [
     {
-      linkId: 'gender-controller',
+      linkId: targetlinkId,
       text: 'Gender',
       type: 'choice',
       repeats: false,
@@ -46,16 +48,14 @@ const qBooleanCalculation = questionnaireExtFactory(
     },
     {
       extension: [calculatedExpressionExtFactory("%gender = 'female'")],
-      linkId: 'gender-is-female',
+      linkId: targetlinkIdCalc,
       text: 'Gender is female?',
       type: 'boolean',
       readOnly: true
     }
   ],
-  [variableExtFactory("item.where(linkId = 'gender-controller').answer.valueCoding.code", 'gender')]
+  [variableExtFactory('gender', "item.where(linkId = 'gender-controller').answer.valueCoding.code")]
 );
-
-const targetlinkId = 'gender-controller';
 
 export const BooleanCalculation: Story = {
   args: {
@@ -64,8 +64,10 @@ export const BooleanCalculation: Story = {
   play: async ({ canvasElement }) => {
     await chooseSelectOption(canvasElement, targetlinkId, targetCoding.display);
 
-    const result = await getAnswers(targetlinkId);
-    expect(result).toHaveLength(1);
-    expect(result[0].valueCoding).toEqual(expect.objectContaining(targetCoding));
+    // TODO: Add store check
+
+    const element = await findByLinkId(canvasElement, targetlinkIdCalc);
+    const input = element.querySelector("span[data-test='label-Yes'] input");
+    expect(input?.getAttribute('value')).toBe('true');
   }
 };
