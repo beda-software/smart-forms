@@ -33,6 +33,17 @@ export function questionnaireFactory(items: QuestionnaireItem[]): Questionnaire 
     item: items
   };
 }
+export function questionnaireExtFactory(
+  items: QuestionnaireItem[],
+  extension: Extension[]
+): Questionnaire {
+  return {
+    resourceType: 'Questionnaire',
+    status: 'draft',
+    item: items,
+    extension: extension
+  };
+}
 
 export function qrFactory(items: QuestionnaireResponseItem[]): QuestionnaireResponse {
   return {
@@ -58,5 +69,26 @@ export function openLabelExtFactory(text: string): Extension {
   return {
     url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-openLabel',
     valueString: text
+  };
+}
+
+export function calculatedExpressionExtFactory(text: string): Extension {
+  return {
+    url: 'http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression',
+    valueExpression: {
+      language: 'text/fhirpath',
+      expression: text
+    }
+  };
+}
+
+export function variableExtFactory(text: string): Extension {
+  return {
+    url: 'http://hl7.org/fhir/StructureDefinition/variable',
+    valueExpression: {
+      name: 'gender',
+      language: 'text/fhirpath',
+      expression: text
+    }
   };
 }
