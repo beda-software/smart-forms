@@ -2,7 +2,6 @@ import { evaluate } from 'fhirpath';
 import { questionnaireResponseStore } from '../stores';
 import type {
   Extension,
-  FhirResource,
   Questionnaire,
   QuestionnaireItem,
   QuestionnaireResponse,
