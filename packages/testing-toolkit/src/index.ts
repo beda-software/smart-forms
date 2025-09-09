@@ -45,8 +45,10 @@ export async function inputFile(
   const questionElement = await findByLinkId(canvasElement, linkId);
   const input = questionElement?.querySelector('input');
 
-  const textareaUrl = questionElement?.querySelector(`textarea[data-test="URL"]`);
-  const textareaName = questionElement?.querySelector(`textarea[data-test="file-name"]`);
+  const textareaUrl = questionElement?.querySelector(`textarea[data-test="q-item-attachment-url"]`);
+  const textareaName = questionElement?.querySelector(
+    `textarea[data-test="q-item-attachment-file-name"]`
+  );
 
   if (!input) {
     throw new Error(`File input was not found inside [data-linkid=${linkId}] block`);
@@ -136,7 +138,7 @@ export async function inputDateTime(
 
 export async function checkRadioOption(canvasElement: HTMLElement, linkId: string, text: string) {
   const questionElement = await findByLinkId(canvasElement, linkId);
-  const radio = questionElement?.querySelector(`span[data-test="label-${text}"] input`);
+  const radio = questionElement?.querySelector(`span[data-test="radio-single-${text}"] input`);
 
   if (!radio) {
     throw new Error(`Input or textarea was not found inside ${`[data-linkid=${linkId}] block`}`);
@@ -176,6 +178,9 @@ export async function chooseSelectOption(
 
   const option = await screen.findByText(optionLabel);
   fireEvent.click(option);
+
+  // Here we await for debounced store update
+  await new Promise((resolve) => setTimeout(resolve, 500));
 }
 export async function chooseQuantityOption(
   canvasElement: HTMLElement,
@@ -185,7 +190,9 @@ export async function chooseQuantityOption(
 ) {
   const questionElement = await findByLinkId(canvasElement, linkId);
 
-  const inputComaparator = questionElement.querySelector('div[data-test="comparator"] input');
+  const inputComaparator = questionElement.querySelector(
+    'div[data-test="q-item-quantity-comparator"] input'
+  );
   const inputWeight = questionElement.querySelector('div[data-test="q-item-quantity-field"] input');
 
   if (!inputComaparator) {

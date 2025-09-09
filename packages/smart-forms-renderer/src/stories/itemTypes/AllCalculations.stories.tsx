@@ -51,8 +51,7 @@ const qBooleanCalculation = questionnaireFactory(
       extension: [calculatedExpressionExtFactory("%gender = 'female'")],
       linkId: targetlinkIdCalc,
       text: 'Gender is female?',
-      type: 'boolean',
-      readOnly: true
+      type: 'boolean'
     }
   ],
   [variableExtFactory('gender', `item.where(linkId = '${targetlinkId}').answer.valueCoding.code`)]
@@ -65,9 +64,9 @@ export const BooleanCalculation: Story = {
   play: async ({ canvasElement }) => {
     await chooseSelectOption(canvasElement, targetlinkId, targetCoding.display);
 
-    const result = await getAnswers(targetlinkId);
+    const result = await getAnswers(targetlinkIdCalc);
     expect(result).toHaveLength(1);
-    expect(result[0].valueCoding).toEqual(expect.objectContaining(targetCoding));
+    expect(result[0].valueBoolean).toBe(true);
   }
 };
 
