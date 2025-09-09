@@ -29,15 +29,13 @@ export async function getGroupAnswers(groupLinkid: string, answerLinkid: string)
 
 export function questionnaireFactory(
   items: QuestionnaireItem[],
-  extension?: Extension[],
-  contained?: FhirResource[]
+  extra?: Omit<Questionnaire, 'resourceType' | 'status' | 'item'>
 ): Questionnaire {
   return {
     resourceType: 'Questionnaire',
     status: 'active',
     item: items,
-    extension: extension,
-    contained: contained
+    ...extra
   };
 }
 

@@ -9,7 +9,7 @@ import {
   variableExtFactory
 } from '../testUtils';
 import { chooseSelectOption, inputText } from '@aehrc/testing-toolkit';
-import { expect } from 'storybook/test';
+import { expect, waitFor } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -22,22 +22,22 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const targetCoding = {
+const booleanTargetCoding = {
   system: 'http://hl7.org/fhir/administrative-gender',
   code: 'female',
   display: 'Female'
 };
-const targetlinkId = 'gender-controller';
-const targetlinkIdCalc = 'gender-is-female';
+const booleanTargetlinkId = 'gender-controller';
+const booleanTargetlinkIdCalc = 'gender-is-female';
 const qBooleanCalculation = questionnaireFactory(
   [
     {
-      linkId: targetlinkId,
+      linkId: booleanTargetlinkId,
       text: 'Gender',
       type: 'choice',
       repeats: false,
       answerOption: [
-        { valueCoding: targetCoding },
+        { valueCoding: booleanTargetCoding },
         {
           valueCoding: {
             system: 'http://hl7.org/fhir/administrative-gender',
@@ -49,12 +49,20 @@ const qBooleanCalculation = questionnaireFactory(
     },
     {
       extension: [calculatedExpressionExtFactory("%gender = 'female'")],
-      linkId: targetlinkIdCalc,
+      linkId: booleanTargetlinkIdCalc,
       text: 'Gender is female?',
-      type: 'boolean'
+      type: 'boolean',
+      readOnly: true
     }
   ],
-  [variableExtFactory('gender', `item.where(linkId = '${targetlinkId}').answer.valueCoding.code`)]
+  {
+    extension: [
+      variableExtFactory(
+        'gender',
+        `item.where(linkId = '${booleanTargetlinkId}').answer.valueCoding.code`
+      )
+    ]
+  }
 );
 
 export const BooleanCalculation: Story = {
@@ -62,74 +70,43 @@ export const BooleanCalculation: Story = {
     questionnaire: qBooleanCalculation
   },
   play: async ({ canvasElement }) => {
-    await chooseSelectOption(canvasElement, targetlinkId, targetCoding.display);
+    await chooseSelectOption(canvasElement, booleanTargetlinkId, booleanTargetCoding.display);
 
-    const result = await getAnswers(targetlinkIdCalc);
-    expect(result).toHaveLength(1);
-    expect(result[0].valueBoolean).toBe(true);
+    await waitFor(async () => {
+      const result = await getAnswers(booleanTargetlinkIdCalc);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueBoolean).toBe(true);
+    });
   }
 };
 
-const choiceTargetLinkid = 'pain-level';
-const targetChoiseCoding = {
+const choiceTargetLinkId = 'pain-level';
+const targetChoiceCoding = {
   system: 'http://terminology.hl7.org/CodeSystem/v2-0532',
   code: 'Y',
   display: 'Yes'
 };
-const choiceTargetLinkidCalc = 'pain-low';
+const choiceTargetLinkIdCalc = 'pain-low';
 const qChoiceAnswerOptionCalculation = questionnaireFactory(
   [
     {
-      extension: [
-        itemControlExtFactory('slider'),
-        {
-          url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue',
-          valueInteger: 1
-        },
-        {
-          url: 'http://hl7.org/fhir/StructureDefinition/minValue',
-          valueInteger: 0
-        },
-        {
-          url: 'http://hl7.org/fhir/StructureDefinition/maxValue',
-          valueInteger: 10
-        }
-      ],
-      linkId: choiceTargetLinkid,
-      type: 'integer',
-      item: [
-        {
-          extension: [itemControlExtFactory('lower')],
-          linkId: 'pain-level-lower',
-          text: 'No pain',
-          type: 'display'
-        },
-        {
-          extension: [itemControlExtFactory('upper')],
-          linkId: 'pain-level-upper',
-          text: 'Unbearable pain',
-          type: 'display'
-        }
-      ]
+      linkId: choiceTargetLinkId,
+      type: 'integer'
     },
     {
       extension: [
         itemControlExtFactory('radio-button'),
-        {
-          url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation',
-          valueCode: 'horizontal'
-        },
         calculatedExpressionExtFactory(
           "iif(%painLevel.empty(), 'Y', iif(%painLevel < 5, 'Y', 'N'))"
         )
       ],
-      linkId: choiceTargetLinkidCalc,
+      linkId: choiceTargetLinkIdCalc,
       text: 'Low pain (Level < 5)',
       type: 'choice',
       readOnly: true,
       answerOption: [
         {
-          valueCoding: targetChoiseCoding
+          valueCoding: targetChoiceCoding
         },
         {
           valueCoding: {
@@ -141,7 +118,11 @@ const qChoiceAnswerOptionCalculation = questionnaireFactory(
       ]
     }
   ],
-  [variableExtFactory('painLevel', `item.where(linkId = '${choiceTargetLinkid}').answer.value`)]
+  {
+    extension: [
+      variableExtFactory('painLevel', `item.where(linkId = '${choiceTargetLinkId}').answer.value`)
+    ]
+  }
 );
 const choiceTargetNumber = 3;
 
@@ -150,83 +131,46 @@ export const ChoiceAnswerOptionCalculation: Story = {
     questionnaire: qChoiceAnswerOptionCalculation
   },
   play: async ({ canvasElement }) => {
-    await inputText(canvasElement, choiceTargetLinkid, choiceTargetNumber);
+    await inputText(canvasElement, choiceTargetLinkId, choiceTargetNumber);
 
-    const result = await getAnswers(choiceTargetLinkidCalc);
+    const result = await getAnswers(choiceTargetLinkIdCalc);
     expect(result).toHaveLength(1);
-    expect(result[0].valueCoding).toEqual(expect.objectContaining(targetChoiseCoding));
+    expect(result[0].valueCoding).toEqual(expect.objectContaining(targetChoiceCoding));
   }
 };
 
-const choiseValueSetTargetLinkId = 'state-controller';
-const choiseValueSetTargetLinkIdCalc = 'state-choice';
-const choiseValueSetTargetCode = 'ACT';
-const choiseValueSetTargetCoding = {
-  system: 'https://healthterminologies.gov.au/fhir/CodeSystem/australian-states-territories-1',
-  code: choiseValueSetTargetCode,
-  display: 'Australian Capital Territory'
+const choiceValueSetTargetLinkId = 'gender-string';
+const choiceValueSetTargetLinkIdCalc = 'gender-choice';
+
+const choiceValueSetTargetCoding = {
+  system: 'http://hl7.org/fhir/administrative-gender',
+  code: 'male',
+  display: 'Male'
 };
+
 const qChoiceAnswerValueSetCalculation = questionnaireFactory(
   [
     {
-      linkId: 'state-controller-instructions',
-      text: 'Feel free to play around with the following state codes: ACT, NSW,',
-      type: 'display'
+      linkId: choiceValueSetTargetLinkId,
+      type: 'string',
+      text: 'Enter gender code'
     },
     {
-      linkId: choiseValueSetTargetLinkId,
-      type: 'string'
-    },
-    {
-      extension: [calculatedExpressionExtFactory('%stateCode')],
-      linkId: choiseValueSetTargetLinkIdCalc,
+      extension: [calculatedExpressionExtFactory('%gender')],
+      linkId: choiceValueSetTargetLinkIdCalc,
       type: 'choice',
       readOnly: true,
-      answerValueSet: '#australian-states-territories-2'
+      answerValueSet: 'http://hl7.org/fhir/ValueSet/administrative-gender'
     }
   ],
-  [
-    variableExtFactory(
-      'stateCode',
-      `item.where(linkId = '${choiseValueSetTargetLinkId}').answer.value`
-    )
-  ],
-  [
-    {
-      resourceType: 'ValueSet',
-      id: 'australian-states-territories-2',
-      name: 'AustralianStatesAndTerritories',
-      status: 'active',
-      compose: {
-        include: [
-          {
-            system:
-              'https://healthterminologies.gov.au/fhir/CodeSystem/australian-states-territories-1',
-            concept: [
-              {
-                code: choiseValueSetTargetCode
-              },
-              {
-                code: 'NSW'
-              }
-            ]
-          }
-        ]
-      },
-      expansion: {
-        timestamp: '2023-06-20T04:20:58+00:00',
-        contains: [
-          choiseValueSetTargetCoding,
-          {
-            system:
-              'https://healthterminologies.gov.au/fhir/CodeSystem/australian-states-territories-1',
-            code: 'NSW',
-            display: 'New South Wales'
-          }
-        ]
-      }
-    }
-  ]
+  {
+    extension: [
+      variableExtFactory(
+        'gender',
+        `item.where((linkId = '${choiceValueSetTargetLinkId}')).answer.value`
+      )
+    ]
+  }
 );
 
 export const ChoiceAnswerValueSetCalculation: Story = {
@@ -234,10 +178,10 @@ export const ChoiceAnswerValueSetCalculation: Story = {
     questionnaire: qChoiceAnswerValueSetCalculation
   },
   play: async ({ canvasElement }) => {
-    await inputText(canvasElement, choiseValueSetTargetLinkId, choiseValueSetTargetCode);
+    await inputText(canvasElement, choiceValueSetTargetLinkId, choiceValueSetTargetCoding.code);
 
-    const result = await getAnswers(choiseValueSetTargetLinkIdCalc);
+    const result = await getAnswers(choiceValueSetTargetLinkIdCalc);
     expect(result).toHaveLength(1);
-    expect(result[0].valueCoding).toEqual(expect.objectContaining(choiseValueSetTargetCoding));
+    expect(result[0].valueCoding).toEqual(expect.objectContaining(choiceValueSetTargetCoding));
   }
 };
