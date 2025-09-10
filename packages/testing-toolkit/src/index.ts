@@ -178,9 +178,6 @@ export async function chooseSelectOption(
 
   const option = await screen.findByText(optionLabel);
   fireEvent.click(option);
-
-  // Here we await for debounced store update
-  await new Promise((resolve) => setTimeout(resolve, 500));
 }
 export async function chooseQuantityOption(
   canvasElement: HTMLElement,
@@ -212,6 +209,9 @@ export async function chooseQuantityOption(
   }
 
   fireEvent.change(inputWeight, { target: { value: quantity } });
+
+  // Here we await for debounced store update
+  await new Promise((resolve) => setTimeout(resolve, 500));
 }
 
 export async function findByLinkId(canvasElement: HTMLElement, linkId: string) {
