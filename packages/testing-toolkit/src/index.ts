@@ -191,7 +191,7 @@ export async function chooseQuantityOption(
   const questionElement = await findByLinkId(canvasElement, linkId);
 
   const inputComaparator = questionElement.querySelector(
-    'div[data-test="q-item-quantity-comparator"] input'
+    'div[data-test=""q-item-quantity-comparator""] input'
   );
   const inputWeight = questionElement.querySelector('div[data-test="q-item-quantity-field"] input');
 

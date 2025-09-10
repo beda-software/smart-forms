@@ -133,9 +133,11 @@ export const ChoiceAnswerOptionCalculation: Story = {
   play: async ({ canvasElement }) => {
     await inputText(canvasElement, choiceTargetLinkId, choiceTargetNumber);
 
-    const result = await getAnswers(choiceTargetLinkIdCalc);
-    expect(result).toHaveLength(1);
-    expect(result[0].valueCoding).toEqual(expect.objectContaining(targetChoiceCoding));
+    await waitFor(async () => {
+      const result = await getAnswers(choiceTargetLinkIdCalc);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueCoding).toEqual(expect.objectContaining(targetChoiceCoding));
+    });
   }
 };
 
@@ -180,8 +182,10 @@ export const ChoiceAnswerValueSetCalculation: Story = {
   play: async ({ canvasElement }) => {
     await inputText(canvasElement, choiceValueSetTargetLinkId, choiceValueSetTargetCoding.code);
 
-    const result = await getAnswers(choiceValueSetTargetLinkIdCalc);
-    expect(result).toHaveLength(1);
-    expect(result[0].valueCoding).toEqual(expect.objectContaining(choiceValueSetTargetCoding));
+    await waitFor(async () => {
+      const result = await getAnswers(choiceValueSetTargetLinkIdCalc);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueCoding).toEqual(expect.objectContaining(choiceValueSetTargetCoding));
+    });
   }
 };
