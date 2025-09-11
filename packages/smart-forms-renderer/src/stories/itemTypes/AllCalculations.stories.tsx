@@ -4,8 +4,10 @@ import BuildFormWrapperForStorybook from '../storybookWrappers/BuildFormWrapperF
 import {
   calculatedExpressionExtFactory,
   getAnswers,
+  getGroupAnswers,
   itemControlExtFactory,
   questionnaireFactory,
+  questionnaireUnitFactory,
   variableExtFactory
 } from '../testUtils';
 import { chooseSelectOption, inputText } from '@aehrc/testing-toolkit';
@@ -186,6 +188,64 @@ export const ChoiceAnswerValueSetCalculation: Story = {
       const result = await getAnswers(choiceValueSetTargetLinkIdCalc);
       expect(result).toHaveLength(1);
       expect(result[0].valueCoding).toEqual(expect.objectContaining(choiceValueSetTargetCoding));
+    });
+  }
+};
+const heightLinkId = 'patient-height';
+const weightLinkId = 'patient-weight';
+const bmiLinkId = 'bmi-result';
+const bmiGroupLinkId = 'bmi-calculation';
+
+const qCalculatedExpressionBMICalculator = questionnaireFactory([
+  {
+    linkId: bmiGroupLinkId,
+    type: 'group',
+    extension: [
+      variableExtFactory('height', `item.where(linkId='${heightLinkId}').answer.value`),
+      variableExtFactory('weight', `item.where(linkId='${weightLinkId}').answer.value`)
+    ],
+    item: [
+      {
+        linkId: heightLinkId,
+        text: 'Height',
+        type: 'decimal',
+        readOnly: false
+      },
+      {
+        linkId: weightLinkId,
+        text: 'Weight',
+        type: 'decimal',
+        readOnly: false
+      },
+      {
+        extension: [
+          calculatedExpressionExtFactory('(%weight/((%height/100).power(2))).round(1)'),
+          questionnaireUnitFactory('kg/m2', 'kg/m2')
+        ],
+        linkId: bmiLinkId,
+        text: 'Value',
+        type: 'decimal',
+        readOnly: true
+      }
+    ]
+  }
+]);
+const heightTarget = 100;
+const weightTarget = 10;
+const bmiResult = 10;
+
+export const DecimalCalculation: Story = {
+  args: {
+    questionnaire: qCalculatedExpressionBMICalculator
+  },
+  play: async ({ canvasElement }) => {
+    await inputText(canvasElement, heightLinkId, heightTarget);
+    await inputText(canvasElement, weightLinkId, weightTarget);
+
+    await waitFor(async () => {
+      const result = await getGroupAnswers(bmiGroupLinkId, bmiLinkId);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueDecimal).toBe(bmiResult);
     });
   }
 };
