@@ -8,10 +8,11 @@ import {
   itemControlExtFactory,
   questionnaireFactory,
   questionnaireUnitFactory,
+  sqfExpressionFactory,
   variableExtFactory
 } from '../testUtils';
 import { chooseSelectOption, inputText } from '@aehrc/testing-toolkit';
-import { expect, waitFor } from 'storybook/test';
+import { expect, waitFor, screen } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -247,5 +248,58 @@ export const DecimalCalculation: Story = {
       expect(result).toHaveLength(1);
       expect(result[0].valueDecimal).toBe(bmiResult);
     });
+  }
+};
+const displayTargetLinkId = 'gender-controller';
+const genderTargetCoding = {
+  system: 'http://hl7.org/fhir/administrative-gender',
+  code: 'Female',
+  display: 'Female'
+};
+const qDisplayCalculation = questionnaireFactory(
+  [
+    {
+      linkId: displayTargetLinkId,
+      type: 'choice',
+      answerOption: [
+        {
+          valueCoding: genderTargetCoding
+        },
+        {
+          valueCoding: {
+            system: 'http://hl7.org/fhir/administrative-gender',
+            code: 'Male',
+            display: 'Male'
+          }
+        }
+      ]
+    },
+    {
+      linkId: 'gender-display',
+      type: 'display',
+      _text: {
+        extension: [sqfExpressionFactory("'Gender: '+ %gender")]
+      }
+    }
+  ],
+  {
+    extension: [
+      variableExtFactory(
+        'gender',
+        `item.where(linkId = '${displayTargetLinkId}').answer.valueCoding.code`
+      )
+    ]
+  }
+);
+const displayTargetText = 'Gender: ' + genderTargetCoding.display;
+
+export const DisplayCalculation: Story = {
+  args: {
+    questionnaire: qDisplayCalculation
+  },
+  play: async ({ canvasElement }) => {
+    await chooseSelectOption(canvasElement, displayTargetLinkId, genderTargetCoding.display);
+
+    expect(screen.queryByText(displayTargetText)).toBeDefined();
   }
 };

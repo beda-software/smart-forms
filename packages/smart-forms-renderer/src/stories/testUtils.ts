@@ -96,3 +96,12 @@ export function questionnaireUnitFactory(code: string, display: string) {
     }
   };
 }
+export function sqfExpressionFactory(text: string) {
+  return {
+    url: 'http://hl7.org/fhir/StructureDefinition/cqf-expression',
+    valueExpression: {
+      language: 'text/fhirpath',
+      expression: text
+    }
+  };
+}
