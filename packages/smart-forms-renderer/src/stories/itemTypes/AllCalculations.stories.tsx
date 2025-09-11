@@ -11,7 +11,7 @@ import {
   sqfExpressionFactory,
   variableExtFactory
 } from '../testUtils';
-import { chooseSelectOption, inputText } from '@aehrc/testing-toolkit';
+import { chooseSelectOption, inputDecimal, inputInteger, inputText } from '@aehrc/testing-toolkit';
 import { expect, waitFor, screen } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -194,7 +194,7 @@ export const ChoiceAnswerValueSetCalculation: Story = {
 };
 const heightLinkId = 'patient-height';
 const weightLinkId = 'patient-weight';
-const bmiLinkId = 'bmi-result';
+const bmiLinkIdCalc = 'bmi-result';
 const bmiGroupLinkId = 'bmi-calculation';
 
 const qCalculatedExpressionBMICalculator = questionnaireFactory([
@@ -223,7 +223,7 @@ const qCalculatedExpressionBMICalculator = questionnaireFactory([
           calculatedExpressionExtFactory('(%weight/((%height/100).power(2))).round(1)'),
           questionnaireUnitFactory('kg/m2', 'kg/m2')
         ],
-        linkId: bmiLinkId,
+        linkId: bmiLinkIdCalc,
         text: 'Value',
         type: 'decimal',
         readOnly: true
@@ -240,11 +240,11 @@ export const DecimalCalculation: Story = {
     questionnaire: qCalculatedExpressionBMICalculator
   },
   play: async ({ canvasElement }) => {
-    await inputText(canvasElement, heightLinkId, heightTarget);
-    await inputText(canvasElement, weightLinkId, weightTarget);
+    await inputDecimal(canvasElement, heightLinkId, heightTarget);
+    await inputDecimal(canvasElement, weightLinkId, weightTarget);
 
     await waitFor(async () => {
-      const result = await getGroupAnswers(bmiGroupLinkId, bmiLinkId);
+      const result = await getGroupAnswers(bmiGroupLinkId, bmiLinkIdCalc);
       expect(result).toHaveLength(1);
       expect(result[0].valueDecimal).toBe(bmiResult);
     });
@@ -301,5 +301,49 @@ export const DisplayCalculation: Story = {
     await chooseSelectOption(canvasElement, displayTargetLinkId, genderTargetCoding.display);
 
     expect(screen.queryByText(displayTargetText)).toBeDefined();
+  }
+};
+
+const integerLinkId = 'length-controller';
+const qIntegerCalculation = questionnaireFactory(
+  [
+    {
+      extension: [questionnaireUnitFactory('cm', 'cm')],
+      linkId: integerLinkId,
+      type: 'integer'
+    },
+    {
+      extension: [
+        calculatedExpressionExtFactory('%length.power(2)'),
+        questionnaireUnitFactory('cm2', 'cm2')
+      ],
+      linkId: 'length-squared',
+      type: 'integer',
+      readOnly: true
+    }
+  ],
+  {
+    extension: [
+      variableExtFactory('length', `item.where(linkId = '${integerLinkId}').answer.value`)
+    ]
+  }
+);
+
+const integerTargetNumber = 2;
+const integerTargetNumberCalc = 4;
+const integerLinkIdCalc = 'length-squared';
+
+export const IntegerCalculation: Story = {
+  args: {
+    questionnaire: qIntegerCalculation
+  },
+  play: async ({ canvasElement }) => {
+    await inputInteger(canvasElement, integerLinkId, integerTargetNumber);
+
+    await waitFor(async () => {
+      const result = await getAnswers(integerLinkIdCalc);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueInteger).toBe(integerTargetNumberCalc);
+    });
   }
 };

@@ -93,9 +93,3 @@ export const IntegerBasicResponse: Story = {
     expect(input).toBe(targetAge.toString());
   }
 };
-
-export const IntegerCalculation: Story = {
-  args: {
-    questionnaire: qIntegerCalculation
-  }
-};
