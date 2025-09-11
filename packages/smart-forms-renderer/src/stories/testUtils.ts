@@ -85,3 +85,14 @@ export function variableExtFactory(name: string, text: string): Extension {
     }
   };
 }
+
+export function questionnaireUnitFactory(code: string, display: string) {
+  return {
+    url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unit',
+    valueCoding: {
+      system: 'http://unitsofmeasure.org',
+      code: code,
+      display: display
+    }
+  };
+}
