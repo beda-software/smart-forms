@@ -6,9 +6,10 @@ import {
   getAnswers,
   itemControlExtFactory,
   questionnaireFactory,
+  questionnaireUnitFactory,
   variableExtFactory
 } from '../testUtils';
-import { chooseSelectOption, inputText } from '@aehrc/testing-toolkit';
+import { chooseSelectOption, inputInteger, inputText } from '@aehrc/testing-toolkit';
 import { expect, waitFor } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -186,6 +187,49 @@ export const ChoiceAnswerValueSetCalculation: Story = {
       const result = await getAnswers(choiceValueSetTargetLinkIdCalc);
       expect(result).toHaveLength(1);
       expect(result[0].valueCoding).toEqual(expect.objectContaining(choiceValueSetTargetCoding));
+    });
+  }
+};
+
+const integerLinkId = 'length-controller';
+const integerLinkIdCalc = 'length-squared';
+const qIntegerCalculation = questionnaireFactory(
+  [
+    {
+      extension: [questionnaireUnitFactory('cm', 'cm')],
+      linkId: integerLinkId,
+      type: 'integer'
+    },
+    {
+      extension: [
+        calculatedExpressionExtFactory('%length.power(2)'),
+        questionnaireUnitFactory('cm2', 'cm^2')
+      ],
+      linkId: 'length-squared',
+      type: 'integer',
+      readOnly: true
+    }
+  ],
+  {
+    extension: [
+      variableExtFactory('length', `item.where(linkId = '${integerLinkId}').answer.value`)
+    ]
+  }
+);
+const integerTargetNumber = 2;
+const integerTargetNumberCalc = 4;
+
+export const IntegerCalculation: Story = {
+  args: {
+    questionnaire: qIntegerCalculation
+  },
+  play: async ({ canvasElement }) => {
+    await inputInteger(canvasElement, choiceValueSetTargetLinkId, integerTargetNumber);
+
+    await waitFor(async () => {
+      const result = await getAnswers(integerLinkIdCalc);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueInteger).toBe(integerTargetNumberCalc);
     });
   }
 };
