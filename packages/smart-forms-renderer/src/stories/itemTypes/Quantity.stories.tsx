@@ -19,7 +19,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import BuildFormWrapperForStorybook from '../storybookWrappers/BuildFormWrapperForStorybook';
 import {
   qQuantityBasic,
-  qQuantityCalculation,
   qQuantityUnitOption,
   qrQuantityBasicResponse,
   qrQuantityUnitOptionResponse
@@ -61,11 +60,5 @@ export const QuantityUnitOptionResponse: Story = {
   args: {
     questionnaire: qQuantityUnitOption,
     questionnaireResponse: qrQuantityUnitOptionResponse
-  }
-};
-
-export const QuantityCalculation: Story = {
-  args: {
-    questionnaire: qQuantityCalculation
   }
 };

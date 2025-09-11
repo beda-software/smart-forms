@@ -224,12 +224,42 @@ export const IntegerCalculation: Story = {
     questionnaire: qIntegerCalculation
   },
   play: async ({ canvasElement }) => {
-    await inputInteger(canvasElement, choiceValueSetTargetLinkId, integerTargetNumber);
+    await inputInteger(canvasElement, integerLinkId, integerTargetNumber);
 
     await waitFor(async () => {
       const result = await getAnswers(integerLinkIdCalc);
       expect(result).toHaveLength(1);
       expect(result[0].valueInteger).toBe(integerTargetNumberCalc);
     });
+  }
+};
+
+const quantityLinkId = 'duration-in-days';
+const qQuantityCalculation = questionnaireFactory(
+  [
+    {
+      extension: [questionnaireUnitFactory('d', 'days')],
+      linkId: quantityLinkId,
+      type: 'quantity'
+    },
+    {
+      extension: [
+        questionnaireUnitFactory('h', 'hours'),
+        calculatedExpressionExtFactory('%durationInDays.value * 24')
+      ],
+      linkId: 'duration-in-hours',
+      type: 'quantity'
+    }
+  ],
+  {
+    extension: [
+      variableExtFactory('durationInDays', `item.where(linkId='${quantityLinkId}').answer.value`)
+    ]
+  }
+);
+
+export const QuantityCalculation: Story = {
+  args: {
+    questionnaire: qQuantityCalculation
   }
 };
