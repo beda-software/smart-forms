@@ -11,7 +11,7 @@ import {
   sqfExpressionFactory,
   variableExtFactory
 } from '../testUtils';
-import { chooseSelectOption, inputText } from '@aehrc/testing-toolkit';
+import { chooseSelectOption, inputDecimal, inputText } from '@aehrc/testing-toolkit';
 import { expect, waitFor, screen } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -194,7 +194,7 @@ export const ChoiceAnswerValueSetCalculation: Story = {
 };
 const heightLinkId = 'patient-height';
 const weightLinkId = 'patient-weight';
-const bmiLinkId = 'bmi-result';
+const bmiLinkIdCalc = 'bmi-result';
 const bmiGroupLinkId = 'bmi-calculation';
 
 const qCalculatedExpressionBMICalculator = questionnaireFactory([
@@ -223,7 +223,7 @@ const qCalculatedExpressionBMICalculator = questionnaireFactory([
           calculatedExpressionExtFactory('(%weight/((%height/100).power(2))).round(1)'),
           questionnaireUnitFactory('kg/m2', 'kg/m2')
         ],
-        linkId: bmiLinkId,
+        linkId: bmiLinkIdCalc,
         text: 'Value',
         type: 'decimal',
         readOnly: true
@@ -233,23 +233,24 @@ const qCalculatedExpressionBMICalculator = questionnaireFactory([
 ]);
 const heightTarget = 100;
 const weightTarget = 10;
-const bmiResult = 10;
+const bmiResultCalc = 10;
 
 export const DecimalCalculation: Story = {
   args: {
     questionnaire: qCalculatedExpressionBMICalculator
   },
   play: async ({ canvasElement }) => {
-    await inputText(canvasElement, heightLinkId, heightTarget);
-    await inputText(canvasElement, weightLinkId, weightTarget);
+    await inputDecimal(canvasElement, heightLinkId, heightTarget);
+    await inputDecimal(canvasElement, weightLinkId, weightTarget);
 
     await waitFor(async () => {
-      const result = await getGroupAnswers(bmiGroupLinkId, bmiLinkId);
+      const result = await getGroupAnswers(bmiGroupLinkId, bmiLinkIdCalc);
       expect(result).toHaveLength(1);
-      expect(result[0].valueDecimal).toBe(bmiResult);
+      expect(result[0].valueDecimal).toBe(bmiResultCalc);
     });
   }
 };
+
 const displayTargetLinkId = 'gender-controller';
 const genderTargetCoding = {
   system: 'http://hl7.org/fhir/administrative-gender',
