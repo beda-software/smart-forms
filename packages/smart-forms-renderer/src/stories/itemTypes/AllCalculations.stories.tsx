@@ -200,7 +200,7 @@ const qIntegerCalculation = questionnaireFactory(
     },
     {
       extension: [calculatedExpressionExtFactory('%length.power(2)')],
-      linkId: 'length-squared',
+      linkId: integerLinkIdCalc,
       type: 'integer',
       readOnly: true
     }
