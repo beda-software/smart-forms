@@ -245,3 +245,60 @@ export const DecimalCalculation: Story = {
     });
   }
 };
+
+const stringCalculationLinkId = 'gender-controller';
+const stringCalcCalculationLinkId = 'gender-string';
+const stringTargetCoding = {
+  system: 'http://hl7.org/fhir/administrative-gender',
+  code: 'Male',
+  display: 'Male'
+};
+const qStringCalculation = questionnaireFactory(
+  [
+    {
+      linkId: stringCalculationLinkId,
+      type: 'choice',
+      answerOption: [
+        {
+          valueCoding: {
+            system: 'http://hl7.org/fhir/administrative-gender',
+            code: 'Female',
+            display: 'Female'
+          }
+        },
+        {
+          valueCoding: stringTargetCoding
+        }
+      ]
+    },
+    {
+      extension: [calculatedExpressionExtFactory('%gender')],
+      linkId: stringCalcCalculationLinkId,
+      type: 'string',
+      readOnly: true
+    }
+  ],
+  {
+    extension: [
+      variableExtFactory(
+        'gender',
+        `item.where(linkId = '${stringCalculationLinkId}').answer.valueCoding.code`
+      )
+    ]
+  }
+);
+
+export const StringCalculation: Story = {
+  args: {
+    questionnaire: qStringCalculation
+  },
+  play: async ({ canvasElement }) => {
+    await chooseSelectOption(canvasElement, stringCalculationLinkId, stringTargetCoding.display);
+
+    await waitFor(async () => {
+      const result = await getAnswers(stringCalcCalculationLinkId);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueString).toBe(stringTargetCoding.display);
+    });
+  }
+};
