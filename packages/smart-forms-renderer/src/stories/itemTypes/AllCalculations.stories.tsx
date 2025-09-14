@@ -9,7 +9,7 @@ import {
   questionnaireUnitFactory,
   variableExtFactory
 } from '../testUtils';
-import { chooseSelectOption, inputInteger, inputText } from '@aehrc/testing-toolkit';
+import { chooseSelectOption, inputInteger, inputQuantity, inputText } from '@aehrc/testing-toolkit';
 import { expect, waitFor } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -234,12 +234,15 @@ export const IntegerCalculation: Story = {
   }
 };
 
-const quantityLinkId = 'duration-in-days';
+const quantityDaysLinkId = 'duration-in-days';
+const quantityHoursLinkId = 'duration-in-hours';
+const quantityTargetDays = 1;
+const quantityTargetHours = 24;
 const qQuantityCalculation = questionnaireFactory(
   [
     {
       extension: [questionnaireUnitFactory('d', 'days')],
-      linkId: quantityLinkId,
+      linkId: quantityDaysLinkId,
       type: 'quantity'
     },
     {
@@ -247,13 +250,16 @@ const qQuantityCalculation = questionnaireFactory(
         questionnaireUnitFactory('h', 'hours'),
         calculatedExpressionExtFactory('%durationInDays.value * 24')
       ],
-      linkId: 'duration-in-hours',
+      linkId: quantityHoursLinkId,
       type: 'quantity'
     }
   ],
   {
     extension: [
-      variableExtFactory('durationInDays', `item.where(linkId='${quantityLinkId}').answer.value`)
+      variableExtFactory(
+        'durationInDays',
+        `item.where(linkId='${quantityDaysLinkId}').answer.value`
+      )
     ]
   }
 );
@@ -261,5 +267,14 @@ const qQuantityCalculation = questionnaireFactory(
 export const QuantityCalculation: Story = {
   args: {
     questionnaire: qQuantityCalculation
+  },
+  play: async ({ canvasElement }) => {
+    await inputQuantity(canvasElement, quantityDaysLinkId, quantityTargetDays);
+
+    await waitFor(async () => {
+      const result = await getAnswers(quantityHoursLinkId);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueQuantity.value).toBe(quantityTargetHours);
+    });
   }
 };
