@@ -302,3 +302,60 @@ export const StringCalculation: Story = {
     });
   }
 };
+
+const groupLinkId = 'medications-group';
+const groupCalcLinkId = 'summaries-group';
+const detailsCalcLinkId = 'medication-summary';
+const detailsLinkId = 'medications-details';
+const textTargetText = 'Hello world';
+const qTextCalculation = questionnaireFactory(
+  [
+    {
+      linkId: groupLinkId,
+      type: 'group',
+      repeats: false,
+      item: [
+        {
+          linkId: detailsLinkId,
+          type: 'text',
+          readOnly: false
+        }
+      ]
+    },
+    {
+      linkId: groupCalcLinkId,
+      type: 'group',
+      repeats: false,
+      item: [
+        {
+          extension: [calculatedExpressionExtFactory('%medicationDetails')],
+          linkId: detailsCalcLinkId,
+          type: 'text',
+          readOnly: true
+        }
+      ]
+    }
+  ],
+  {
+    extension: [
+      variableExtFactory(
+        'medicationDetails',
+        `item.where(linkId = '${groupLinkId}').item.where(linkId = '${detailsLinkId}').answer.value`
+      )
+    ]
+  }
+);
+export const TextCalculation: Story = {
+  args: {
+    questionnaire: qTextCalculation
+  },
+  play: async ({ canvasElement }) => {
+    await inputText(canvasElement, detailsLinkId, textTargetText);
+
+    await waitFor(async () => {
+      const result = await getGroupAnswers(groupCalcLinkId, detailsCalcLinkId);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueString).toBe(textTargetText);
+    });
+  }
+};
