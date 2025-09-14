@@ -6,7 +6,6 @@ import {
   getAnswers,
   itemControlExtFactory,
   questionnaireFactory,
-  questionnaireUnitFactory,
   variableExtFactory
 } from '../testUtils';
 import { chooseSelectOption, inputInteger, inputQuantity, inputText } from '@aehrc/testing-toolkit';
@@ -196,15 +195,11 @@ const integerLinkIdCalc = 'length-squared';
 const qIntegerCalculation = questionnaireFactory(
   [
     {
-      extension: [questionnaireUnitFactory('cm', 'cm')],
       linkId: integerLinkId,
       type: 'integer'
     },
     {
-      extension: [
-        calculatedExpressionExtFactory('%length.power(2)'),
-        questionnaireUnitFactory('cm2', 'cm^2')
-      ],
+      extension: [calculatedExpressionExtFactory('%length.power(2)')],
       linkId: 'length-squared',
       type: 'integer',
       readOnly: true
@@ -241,15 +236,11 @@ const quantityTargetHours = 24;
 const qQuantityCalculation = questionnaireFactory(
   [
     {
-      extension: [questionnaireUnitFactory('d', 'days')],
       linkId: quantityDaysLinkId,
       type: 'quantity'
     },
     {
-      extension: [
-        questionnaireUnitFactory('h', 'hours'),
-        calculatedExpressionExtFactory('%durationInDays.value * 24')
-      ],
+      extension: [calculatedExpressionExtFactory('%durationInDays.value * 24')],
       linkId: quantityHoursLinkId,
       type: 'quantity'
     }
