@@ -89,9 +89,11 @@ export const QuantityBasic: Story = {
 };
 
 const basicResTargetLinkId = 'body-weight';
-const basicResComaparatorTargetLinkId = 'body-weight-comparator';
+const basicResComparatorTargetLinkId = 'body-weight-comparator';
 const basicResTargetWeight = 80;
+const basicResComparatorTargetWeight = 100;
 const basicResTargetComparator = '<';
+
 const qrQuantityBasicResponse = qrFactory([
   {
     linkId: basicResTargetLinkId,
@@ -105,11 +107,11 @@ const qrQuantityBasicResponse = qrFactory([
     ]
   },
   {
-    linkId: basicResComaparatorTargetLinkId,
+    linkId: basicResComparatorTargetLinkId,
     answer: [
       {
         valueQuantity: {
-          value: basicResTargetWeight,
+          value: basicResComparatorTargetWeight,
           comparator: basicResTargetComparator,
           system: 'http://unitsofmeasure.org'
         }
@@ -133,7 +135,7 @@ export const QuantityBasicResponse: Story = {
 
     expect(resultComparator).toEqual(
       expect.objectContaining({
-        value: basicResTargetWeight.toString(),
+        value: basicResComparatorTargetWeight.toString(),
         comparator: basicResTargetComparator
       })
     );
