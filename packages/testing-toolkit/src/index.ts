@@ -272,7 +272,7 @@ export async function chooseQuantityOption(
 ) {
   const questionElement = await findByLinkId(canvasElement, linkId);
 
-  const inputComaparator = questionElement.querySelector(
+  const inputComparator = questionElement.querySelector(
     'div[data-test="q-item-quantity-comparator"] input'
   );
   const inputQuantity = questionElement.querySelector(
@@ -280,20 +280,20 @@ export async function chooseQuantityOption(
   );
 
   // Error section
-  if (!inputComaparator) {
+  if (!inputComparator) {
     throw new Error(`There is no input inside [data-test="q-item-quantity-comparator"]`);
   }
   if (!inputQuantity) {
     throw new Error(`There is no input inside [data-test="q-item-quantity-field"]`);
   }
 
-  fireEvent.focus(inputComaparator);
-  fireEvent.keyDown(inputComaparator, { key: 'ArrowDown', code: 'ArrowDown' });
+  fireEvent.focus(inputComparator);
+  fireEvent.keyDown(inputComparator, { key: 'ArrowDown', code: 'ArrowDown' });
 
   if (quantityComparator) {
     const option = await screen.findByText(quantityComparator);
     fireEvent.click(option);
-    fireEvent.change(inputComaparator, { target: { value: quantityComparator } });
+    fireEvent.change(inputComparator, { target: { value: quantityComparator } });
   }
 
   fireEvent.change(inputQuantity, { target: { value: quantity } });
