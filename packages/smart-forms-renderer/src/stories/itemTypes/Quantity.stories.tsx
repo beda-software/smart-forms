@@ -22,9 +22,11 @@ import {
   getAnswers,
   qrFactory,
   questionnaireFactory,
+  questionnaireUnitFactory,
   questionnaireUnitOptionFactory
 } from '../testUtils';
 import { inputQuantity, inputQuantityText } from '@aehrc/testing-toolkit';
+import type { Quantity } from 'fhir/r4';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -38,50 +40,78 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
-const basicLinkdId = 'body-weight';
-const basicComparatorLinkdId = 'body-weight-comparator';
+const basicLinkId = 'body-weight';
+const basicUnit = 'kg';
+const basicCode = 'kg';
 const qQuantityBasic = questionnaireFactory([
   {
-    linkId: basicLinkdId,
-    type: 'quantity'
-  },
-  {
-    linkId: basicComparatorLinkdId,
+    linkId: basicLinkId,
+    extension: [questionnaireUnitFactory(basicUnit, basicCode)],
     type: 'quantity'
   }
 ]);
 const basicTargetNumber = 10;
-const basicComparatorTargetNumber = 20;
-const basicTargetComparator = '<';
+const basicTargetSystem = 'http://unitsofmeasure.org';
+
 export const QuantityBasic: Story = {
   args: {
     questionnaire: qQuantityBasic
   },
   play: async ({ canvasElement }) => {
-    await inputQuantity(canvasElement, basicLinkdId, basicTargetNumber);
+    await inputQuantity(canvasElement, basicLinkId, basicTargetNumber);
 
     await waitFor(async () => {
-      const result = await getAnswers(basicLinkdId);
+      const result = await getAnswers(basicLinkId);
       expect(result).toHaveLength(1);
-      expect(result[0].valueQuantity.value).toBe(basicTargetNumber);
+      expect(result[0].valueQuantity).toEqual(
+        expect.objectContaining({
+          value: basicTargetNumber,
+          comparator: undefined,
+          unit: basicUnit,
+          code: basicCode,
+          system: basicTargetSystem
+        })
+      );
     });
+  }
+};
 
-    // With comparator:
+const basicComparatorLinkId = 'body-weight-comparator';
+const basicComparatorUnit = 'kg';
+const basicComparatorCode = 'kg';
+const qQuantityBasicComparator = questionnaireFactory([
+  {
+    linkId: basicComparatorLinkId,
+    extension: [questionnaireUnitFactory(basicComparatorUnit, basicComparatorCode)],
+    type: 'quantity'
+  }
+]);
+const basicComparatorTargetNumber = 20;
+const basicTargetComparator = '<' as const;
+
+export const QuantityBasicComparator: Story = {
+  args: {
+    questionnaire: qQuantityBasicComparator
+  },
+  play: async ({ canvasElement }) => {
     await inputQuantity(
       canvasElement,
-      basicComparatorLinkdId,
+      basicComparatorLinkId,
       basicComparatorTargetNumber,
       undefined,
       basicTargetComparator
     );
 
     await waitFor(async () => {
-      const result = await getAnswers(basicComparatorLinkdId);
+      const result = await getAnswers(basicComparatorLinkId);
       expect(result).toHaveLength(1);
       expect(result[0].valueQuantity).toEqual(
         expect.objectContaining({
           value: basicComparatorTargetNumber,
-          comparator: basicTargetComparator
+          comparator: basicTargetComparator,
+          system: basicTargetSystem,
+          unit: basicComparatorUnit,
+          code: basicComparatorCode
         })
       );
     });
@@ -89,10 +119,7 @@ export const QuantityBasic: Story = {
 };
 
 const basicResTargetLinkId = 'body-weight';
-const basicResComparatorTargetLinkId = 'body-weight-comparator';
 const basicResTargetWeight = 80;
-const basicResComparatorTargetWeight = 100;
-const basicResTargetComparator = '<';
 
 const qrQuantityBasicResponse = qrFactory([
   {
@@ -101,18 +128,6 @@ const qrQuantityBasicResponse = qrFactory([
       {
         valueQuantity: {
           value: basicResTargetWeight,
-          system: 'http://unitsofmeasure.org'
-        }
-      }
-    ]
-  },
-  {
-    linkId: basicResComparatorTargetLinkId,
-    answer: [
-      {
-        valueQuantity: {
-          value: basicResComparatorTargetWeight,
-          comparator: basicResTargetComparator,
           system: 'http://unitsofmeasure.org'
         }
       }
@@ -129,9 +144,39 @@ export const QuantityBasicResponse: Story = {
     const result = await inputQuantityText(canvasElement, basicResTargetLinkId, false);
 
     expect(result).toEqual(expect.objectContaining({ value: basicResTargetWeight.toString() }));
+  }
+};
 
-    // With comparator:
-    const resultComparator = await inputQuantityText(canvasElement, basicComparatorLinkdId, false);
+const basicResComparatorLinkId = 'body-weight-comparator';
+const basicResComparatorTargetWeight = 100;
+const basicResTargetComparator = '<' as const;
+
+const qrQuantityBasicComparatorResponse = qrFactory([
+  {
+    linkId: basicResComparatorLinkId,
+    answer: [
+      {
+        valueQuantity: {
+          value: basicResComparatorTargetWeight,
+          comparator: basicResTargetComparator,
+          system: 'http://unitsofmeasure.org'
+        }
+      }
+    ]
+  }
+]);
+
+export const QuantityBasicComparatorResponse: Story = {
+  args: {
+    questionnaire: qQuantityBasicComparator,
+    questionnaireResponse: qrQuantityBasicComparatorResponse
+  },
+  play: async ({ canvasElement }) => {
+    const resultComparator = await inputQuantityText(
+      canvasElement,
+      basicResComparatorLinkId,
+      false
+    );
 
     expect(resultComparator).toEqual(
       expect.objectContaining({
@@ -142,43 +187,19 @@ export const QuantityBasicResponse: Story = {
   }
 };
 
-const multiTargetUnit = 'Week(s)';
-const multiComparatorTargetUnit = 'Day(s)';
-const multiComparatorTargetComparator = '>';
-
-const daysWeeks = [
-  questionnaireUnitOptionFactory('d', multiComparatorTargetUnit),
-  questionnaireUnitOptionFactory('wk', multiTargetUnit)
-];
-
 const singleUnitLinkId = 'duration-single-unit';
-const multiLinkId = 'duration-multi-unit';
-const multiComparatorLinkId = 'duration-multi-unit-comparator';
-
 const singleTargetNumber = 10;
-const multiTargetNumber = 20;
-const multiComparatorTargetNumber = 30;
 
-const qQuantityUnitOption = questionnaireFactory([
+const qQuantitySingle = questionnaireFactory([
   {
     linkId: singleUnitLinkId,
     type: 'quantity'
-  },
-  {
-    linkId: multiLinkId,
-    type: 'quantity',
-    extension: daysWeeks
-  },
-  {
-    linkId: multiComparatorLinkId,
-    type: 'quantity',
-    extension: daysWeeks
   }
 ]);
 
-export const QuantityUnitOption: Story = {
+export const QuantitySingleUnit: Story = {
   args: {
-    questionnaire: qQuantityUnitOption
+    questionnaire: qQuantitySingle
   },
   play: async ({ canvasElement }) => {
     await inputQuantity(canvasElement, singleUnitLinkId, singleTargetNumber);
@@ -188,8 +209,29 @@ export const QuantityUnitOption: Story = {
       expect(result).toHaveLength(1);
       expect(result[0].valueQuantity.value).toBe(singleTargetNumber);
     });
+  }
+};
 
-    //Multi-unit:
+const multiLinkId = 'duration-multi-unit';
+const multiTargetNumber = 20;
+const multiTargetUnit = 'Week(s)';
+
+const qQuantityMulti = questionnaireFactory([
+  {
+    linkId: multiLinkId,
+    type: 'quantity',
+    extension: [
+      questionnaireUnitOptionFactory('d', 'Day(s)'),
+      questionnaireUnitOptionFactory('wk', multiTargetUnit)
+    ]
+  }
+]);
+
+export const QuantityMultiUnit: Story = {
+  args: {
+    questionnaire: qQuantityMulti
+  },
+  play: async ({ canvasElement }) => {
     await inputQuantity(canvasElement, multiLinkId, multiTargetNumber, multiTargetUnit);
 
     await waitFor(async () => {
@@ -202,8 +244,30 @@ export const QuantityUnitOption: Story = {
         })
       );
     });
+  }
+};
 
-    //Multi-unit-comparator:
+const multiComparatorLinkId = 'duration-multi-unit-comparator';
+const multiComparatorTargetNumber = 30;
+const multiComparatorTargetUnit = 'Day(s)';
+const multiComparatorTargetComparator = '>';
+
+const qQuantityMultiComparator = questionnaireFactory([
+  {
+    linkId: multiComparatorLinkId,
+    type: 'quantity',
+    extension: [
+      questionnaireUnitOptionFactory('d', multiComparatorTargetUnit),
+      questionnaireUnitOptionFactory('wk', 'Week(s)')
+    ]
+  }
+]);
+
+export const QuantityMultiUnitComparator: Story = {
+  args: {
+    questionnaire: qQuantityMultiComparator
+  },
+  play: async ({ canvasElement }) => {
     await inputQuantity(
       canvasElement,
       multiComparatorLinkId,
@@ -225,91 +289,99 @@ export const QuantityUnitOption: Story = {
     });
   }
 };
-
 const unitsingleResLinkId = 'duration-single-unit';
-const unitmultiResLinkId = 'duration-multi-unit';
-const unitmultiComparatorResLinkId = 'duration-multi-unit-comparator';
-
 const unitsingleCoding = {
   value: 2,
   unit: 'Day(s)',
   system: 'http://unitsofmeasure.org',
   code: 'd'
 };
-const unitmultiResCoding = {
-  value: 48,
-  unit: 'Hour(s)',
-  system: 'http://unitsofmeasure.org',
-  code: 'hour'
-};
-const unitMultiComparatorCoding = {
-  value: 48,
-  comparator: '>=',
-  unit: 'Hour(s)',
-  system: 'http://unitsofmeasure.org',
-  code: 'hour'
-};
-const qrQuantityUnitOptionResponse = qrFactory([
+const qrQuantityUnitOptionSingleResponse = qrFactory([
   {
     linkId: unitsingleResLinkId,
-    answer: [
-      {
-        valueQuantity: unitsingleCoding
-      }
-    ]
-  },
-  {
-    linkId: unitmultiResLinkId,
-    answer: [
-      {
-        valueQuantity: unitmultiResCoding
-      }
-    ]
-  },
-  {
-    linkId: unitmultiComparatorResLinkId,
-    answer: [
-      {
-        valueQuantity: unitMultiComparatorCoding
-      }
-    ]
+    answer: [{ valueQuantity: unitsingleCoding }]
   }
 ]);
 
-export const QuantityUnitOptionResponse: Story = {
+export const QuantityUnitOptionResponseSingle: Story = {
   args: {
-    questionnaire: qQuantityUnitOption,
-    questionnaireResponse: qrQuantityUnitOptionResponse
+    questionnaire: qQuantitySingle,
+    questionnaireResponse: qrQuantityUnitOptionSingleResponse
   },
   play: async ({ canvasElement }) => {
     const resultSingle = await inputQuantityText(canvasElement, unitsingleResLinkId, false);
 
     expect(resultSingle).toEqual(
       expect.objectContaining({
-        value: unitsingleCoding.value.toString()
+        value: unitsingleCoding.value.toString(),
+        unit: undefined,
+        comparator: ''
       })
     );
+  }
+};
 
-    // Multi unit response ---
+const unitmultiResLinkId = 'duration-multi-unit';
+const unitmultiResCoding = {
+  value: 48,
+  unit: 'Hour(s)',
+  system: 'http://unitsofmeasure.org',
+  code: 'hour'
+};
+const qrQuantityUnitOptionMultiResponse = qrFactory([
+  {
+    linkId: unitmultiResLinkId,
+    answer: [{ valueQuantity: unitmultiResCoding }]
+  }
+]);
+
+export const QuantityUnitOptionResponseMulti: Story = {
+  args: {
+    questionnaire: qQuantityMulti,
+    questionnaireResponse: qrQuantityUnitOptionMultiResponse
+  },
+  play: async ({ canvasElement }) => {
     const resultMulti = await inputQuantityText(canvasElement, unitmultiResLinkId, true);
-
     expect(resultMulti).toEqual(
       expect.objectContaining({
         value: unitmultiResCoding.value.toString(),
-        unit: unitmultiResCoding.unit
+        unit: unitmultiResCoding.unit,
+        comparator: ''
       })
     );
+  }
+};
 
-    // Multi unit with comparator
+const unitmultiComparatorResLinkId = 'duration-multi-unit-comparator';
+const unitMultiComparatorCoding: Quantity = {
+  value: 48,
+  comparator: '>=',
+  unit: 'Hour(s)',
+  system: 'http://unitsofmeasure.org',
+  code: 'hour'
+};
+
+const qrQuantityUnitOptionMultiComparatorResponse = qrFactory([
+  {
+    linkId: unitmultiComparatorResLinkId,
+    answer: [{ valueQuantity: unitMultiComparatorCoding }]
+  }
+]);
+
+export const QuantityUnitOptionResponseMultiComparator: Story = {
+  args: {
+    questionnaire: qQuantityMultiComparator,
+    questionnaireResponse: qrQuantityUnitOptionMultiComparatorResponse
+  },
+  play: async ({ canvasElement }) => {
     const resultMultiComparator = await inputQuantityText(
       canvasElement,
       unitmultiComparatorResLinkId,
       true
     );
-
     expect(resultMultiComparator).toEqual(
       expect.objectContaining({
-        value: unitMultiComparatorCoding.value.toString(),
+        value: unitMultiComparatorCoding.value?.toString(),
         unit: unitMultiComparatorCoding.unit,
         comparator: unitMultiComparatorCoding.comparator
       })

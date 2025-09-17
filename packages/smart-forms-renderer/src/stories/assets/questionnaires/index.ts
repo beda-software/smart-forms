@@ -17,7 +17,6 @@
 
 export * from './QBoolean';
 export * from './QDecimal';
-export * from './QInteger';
 export * from './QDate';
 export * from './QDateTime';
 export * from './QTime';
@@ -28,7 +27,6 @@ export * from './QChoice';
 export * from './QOpenChoice';
 export * from './QAttachment';
 export * from './QReference';
-export * from './QQuantity';
 export * from './QAdvancedAdditionalDisplayContent';
 export * from './QAdvancedControlAppearance';
 export * from './QAdvancedOther';

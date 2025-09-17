@@ -96,3 +96,13 @@ export function questionnaireUnitOptionFactory(code: string, display: string): E
     }
   };
 }
+export function questionnaireUnitFactory(code: string, display: string): Extension {
+  return {
+    url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unit',
+    valueCoding: {
+      system: 'http://unitsofmeasure.org',
+      code: code,
+      display: display
+    }
+  };
+}
