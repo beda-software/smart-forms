@@ -196,11 +196,12 @@ export const QuantityBasicComparatorResponse: Story = {
 
 const singleUnitLinkId = 'duration-single-unit';
 const singleTargetNumber = 10;
-
+const singleTargetUnit = 'Day(s)';
 const qQuantitySingle = questionnaireFactory([
   {
     linkId: singleUnitLinkId,
-    type: 'quantity'
+    type: 'quantity',
+    extension: [unitExtFactory('d', singleTargetUnit)]
   }
 ]);
 
@@ -217,9 +218,10 @@ export const QuantitySingleUnit: Story = {
       expect(result[0].valueQuantity).toEqual(
         expect.objectContaining({
           value: singleTargetNumber,
-          unit: undefined,
+          unit: singleTargetUnit,
+          code: 'd',
           comparator: undefined,
-          system: undefined
+          system: ucumSystem
         })
       );
     });
