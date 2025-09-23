@@ -4,11 +4,18 @@ import BuildFormWrapperForStorybook from '../storybookWrappers/BuildFormWrapperF
 import {
   calculatedExpressionExtFactory,
   getAnswers,
+  getGroupAnswers,
   itemControlExtFactory,
   questionnaireFactory,
   variableExtFactory
 } from '../testUtils';
-import { chooseSelectOption, inputInteger, inputQuantity, inputText } from '@aehrc/testing-toolkit';
+import {
+  chooseSelectOption,
+  inputInteger,
+  inputQuantity,
+  inputDecimal,
+  inputText
+} from '@aehrc/testing-toolkit';
 import { expect, waitFor } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -272,6 +279,161 @@ export const QuantityCalculation: Story = {
       const result = await getAnswers(quantityHoursLinkId);
       expect(result).toHaveLength(1);
       expect(result[0].valueQuantity).toEqual(expect.objectContaining(quantityTarget));
+    });
+  }
+};
+const heightLinkId = 'patient-height';
+const weightLinkId = 'patient-weight';
+const bmiLinkIdCalc = 'bmi-result';
+const bmiGroupLinkId = 'bmi-calculation';
+
+const qCalculatedExpressionBMICalculator = questionnaireFactory([
+  {
+    linkId: bmiGroupLinkId,
+    type: 'group',
+    extension: [
+      variableExtFactory('height', `item.where(linkId='${heightLinkId}').answer.value`),
+      variableExtFactory('weight', `item.where(linkId='${weightLinkId}').answer.value`)
+    ],
+    item: [
+      {
+        linkId: heightLinkId,
+        text: 'Height',
+        type: 'decimal',
+        readOnly: false
+      },
+      {
+        linkId: weightLinkId,
+        text: 'Weight',
+        type: 'decimal',
+        readOnly: false
+      },
+      {
+        extension: [calculatedExpressionExtFactory('(%weight/((%height/100).power(2))).round(1)')],
+        linkId: bmiLinkIdCalc,
+        text: 'Value',
+        type: 'decimal',
+        readOnly: true
+      }
+    ]
+  }
+]);
+const heightTarget = 100;
+const weightTarget = 10;
+const bmiResultCalc = 10;
+
+export const DecimalCalculation: Story = {
+  args: {
+    questionnaire: qCalculatedExpressionBMICalculator
+  },
+  play: async ({ canvasElement }) => {
+    await inputDecimal(canvasElement, heightLinkId, heightTarget);
+    await inputDecimal(canvasElement, weightLinkId, weightTarget);
+
+    await waitFor(async () => {
+      const result = await getGroupAnswers(bmiGroupLinkId, bmiLinkIdCalc);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueDecimal).toBe(bmiResultCalc);
+    });
+  }
+};
+
+const stringCalculationLinkId = 'gender-controller';
+const stringCalcCalculationLinkId = 'gender-string';
+const stringTargetCoding = {
+  system: 'http://hl7.org/fhir/administrative-gender',
+  code: 'Male',
+  display: 'Male'
+};
+const qStringCalculation = questionnaireFactory(
+  [
+    {
+      linkId: stringCalculationLinkId,
+      type: 'choice',
+      answerOption: [
+        {
+          valueCoding: {
+            system: 'http://hl7.org/fhir/administrative-gender',
+            code: 'Female',
+            display: 'Female'
+          }
+        },
+        {
+          valueCoding: stringTargetCoding
+        }
+      ]
+    },
+    {
+      extension: [calculatedExpressionExtFactory('%gender')],
+      linkId: stringCalcCalculationLinkId,
+      type: 'string',
+      readOnly: true
+    }
+  ],
+  {
+    extension: [
+      variableExtFactory(
+        'gender',
+        `item.where(linkId = '${stringCalculationLinkId}').answer.valueCoding.code`
+      )
+    ]
+  }
+);
+
+export const StringCalculation: Story = {
+  args: {
+    questionnaire: qStringCalculation
+  },
+  play: async ({ canvasElement }) => {
+    await chooseSelectOption(canvasElement, stringCalculationLinkId, stringTargetCoding.display);
+
+    await waitFor(async () => {
+      const result = await getAnswers(stringCalcCalculationLinkId);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueString).toBe(stringTargetCoding.display);
+    });
+  }
+};
+
+const detailsLinkId = 'medications-details';
+const detailsCalcLinkId = 'medication-summary';
+const textTargetText = 'Hello world';
+
+const qTextCalculation = questionnaireFactory(
+  [
+    {
+      linkId: detailsLinkId,
+      type: 'text',
+      readOnly: false
+    },
+    {
+      extension: [calculatedExpressionExtFactory('%medicationDetails')],
+      linkId: detailsCalcLinkId,
+      type: 'text',
+      readOnly: true
+    }
+  ],
+  {
+    extension: [
+      variableExtFactory(
+        'medicationDetails',
+        `item.where((linkId = '${detailsLinkId}')).answer.value`
+      )
+    ]
+  }
+);
+
+export const TextCalculation: Story = {
+  args: {
+    questionnaire: qTextCalculation
+  },
+  play: async ({ canvasElement }) => {
+    await inputText(canvasElement, detailsLinkId, textTargetText);
+
+    await waitFor(async () => {
+      const result = await getAnswers(detailsCalcLinkId);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueString).toBe(textTargetText);
     });
   }
 };
