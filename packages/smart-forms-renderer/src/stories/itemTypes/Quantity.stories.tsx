@@ -22,6 +22,7 @@ import {
   getAnswers,
   qrFactory,
   questionnaireFactory,
+  ucumSystem,
   unitExtFactory,
   unitOptionExtFactory
 } from '../testUtils';
@@ -51,7 +52,6 @@ const qQuantityBasic = questionnaireFactory([
   }
 ]);
 const basicTargetNumber = 10;
-const basicTargetSystem = 'http://unitsofmeasure.org';
 
 export const QuantityBasic: Story = {
   args: {
@@ -69,7 +69,7 @@ export const QuantityBasic: Story = {
           comparator: undefined,
           unit: basicUnit,
           code: basicCode,
-          system: basicTargetSystem
+          system: ucumSystem
         })
       );
     });
@@ -109,7 +109,7 @@ export const QuantityBasicComparator: Story = {
         expect.objectContaining({
           value: basicComparatorTargetNumber,
           comparator: basicTargetComparator,
-          system: basicTargetSystem,
+          system: ucumSystem,
           unit: basicComparatorUnit,
           code: basicComparatorCode
         })
@@ -128,7 +128,7 @@ const qrQuantityBasicResponse = qrFactory([
       {
         valueQuantity: {
           value: basicResTargetWeight,
-          system: 'http://unitsofmeasure.org'
+          system: ucumSystem
         }
       }
     ]
@@ -165,7 +165,7 @@ const qrQuantityBasicComparatorResponse = qrFactory([
         valueQuantity: {
           value: basicResComparatorTargetWeight,
           comparator: basicResTargetComparator,
-          system: 'http://unitsofmeasure.org'
+          system: ucumSystem
         }
       }
     ]
@@ -218,7 +218,8 @@ export const QuantitySingleUnit: Story = {
         expect.objectContaining({
           value: singleTargetNumber,
           unit: undefined,
-          comparator: undefined
+          comparator: undefined,
+          system: undefined
         })
       );
     });
@@ -251,7 +252,8 @@ export const QuantityMultiUnit: Story = {
         expect.objectContaining({
           value: multiTargetNumber,
           unit: multiTargetUnit,
-          comparator: undefined
+          comparator: undefined,
+          system: ucumSystem
         })
       );
     });
@@ -294,7 +296,8 @@ export const QuantityMultiUnitComparator: Story = {
         expect.objectContaining({
           value: multiComparatorTargetNumber,
           unit: multiComparatorTargetUnit,
-          comparator: multiComparatorTargetComparator
+          comparator: multiComparatorTargetComparator,
+          system: ucumSystem
         })
       );
     });
@@ -304,7 +307,7 @@ const unitsingleResLinkId = 'duration-single-unit';
 const unitsingleQuantity: Quantity = {
   value: 2,
   unit: 'Day(s)',
-  system: 'http://unitsofmeasure.org',
+  system: ucumSystem,
   code: 'd'
 };
 const qrQuantityUnitOptionSingleResponse = qrFactory([
@@ -336,7 +339,7 @@ const unitmultiResLinkId = 'duration-multi-unit';
 const unitmultiResQuantity: Quantity = {
   value: 48,
   unit: 'Hour(s)',
-  system: 'http://unitsofmeasure.org',
+  system: ucumSystem,
   code: 'hour'
 };
 const qrQuantityUnitOptionMultiResponse = qrFactory([
@@ -368,7 +371,7 @@ const unitMultiComparatorQuantity: Quantity = {
   value: 48,
   comparator: '>=',
   unit: 'Hour(s)',
-  system: 'http://unitsofmeasure.org',
+  system: ucumSystem,
   code: 'hour'
 };
 

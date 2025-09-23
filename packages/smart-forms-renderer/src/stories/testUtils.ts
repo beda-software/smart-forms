@@ -116,3 +116,5 @@ export function сqfExpressionFactory(text: string) {
     }
   };
 }
+
+export const ucumSystem = 'http://unitsofmeasure.org';

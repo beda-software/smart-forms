@@ -20,8 +20,7 @@ export * from './QDecimal';
 export * from './QDate';
 export * from './QDateTime';
 export * from './QTime';
-export * from './QString';
-export * from './QText';
+
 export * from './QUrl';
 export * from './QChoice';
 export * from './QOpenChoice';
