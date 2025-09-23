@@ -254,7 +254,7 @@ const qQuantityCalculation = questionnaireFactory(
     ]
   }
 );
-const quantityTargetCoding = {
+const quantityTarget = {
   unit: undefined,
   value: quantityTargetHours,
   code: undefined,
@@ -271,7 +271,7 @@ export const QuantityCalculation: Story = {
     await waitFor(async () => {
       const result = await getAnswers(quantityHoursLinkId);
       expect(result).toHaveLength(1);
-      expect(result[0].valueQuantity).toEqual(expect.objectContaining(quantityTargetCoding));
+      expect(result[0].valueQuantity).toEqual(expect.objectContaining(quantityTarget));
     });
   }
 };

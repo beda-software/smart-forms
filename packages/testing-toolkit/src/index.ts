@@ -73,7 +73,11 @@ export async function inputFile(
   await new Promise((resolve) => setTimeout(resolve, 500));
 }
 
-export async function inputQuantityText(canvasElement: HTMLElement, linkId: string, unit: boolean) {
+export async function getQuantityTextValues(
+  canvasElement: HTMLElement,
+  linkId: string,
+  unit: boolean
+) {
   const element = await findByLinkId(canvasElement, linkId);
   const quantityComparator = element.querySelector(
     'div[data-test="q-item-quantity-comparator"] input'

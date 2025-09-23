@@ -22,10 +22,10 @@ import {
   getAnswers,
   qrFactory,
   questionnaireFactory,
-  questionnaireUnitFactory,
-  questionnaireUnitOptionFactory
+  unitExtFactory,
+  unitOptionExtFactory
 } from '../testUtils';
-import { inputQuantity, inputQuantityText } from '@aehrc/testing-toolkit';
+import { getQuantityTextValues, inputQuantity } from '@aehrc/testing-toolkit';
 import type { Quantity } from 'fhir/r4';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -46,7 +46,7 @@ const basicCode = 'kg';
 const qQuantityBasic = questionnaireFactory([
   {
     linkId: basicLinkId,
-    extension: [questionnaireUnitFactory(basicUnit, basicCode)],
+    extension: [unitExtFactory(basicUnit, basicCode)],
     type: 'quantity'
   }
 ]);
@@ -82,7 +82,7 @@ const basicComparatorCode = 'kg';
 const qQuantityBasicComparator = questionnaireFactory([
   {
     linkId: basicComparatorLinkId,
-    extension: [questionnaireUnitFactory(basicComparatorUnit, basicComparatorCode)],
+    extension: [unitExtFactory(basicComparatorUnit, basicComparatorCode)],
     type: 'quantity'
   }
 ]);
@@ -141,9 +141,15 @@ export const QuantityBasicResponse: Story = {
     questionnaireResponse: qrQuantityBasicResponse
   },
   play: async ({ canvasElement }) => {
-    const result = await inputQuantityText(canvasElement, basicResTargetLinkId, false);
+    const result = await getQuantityTextValues(canvasElement, basicResTargetLinkId, false);
 
-    expect(result).toEqual(expect.objectContaining({ value: basicResTargetWeight.toString() }));
+    expect(result).toEqual(
+      expect.objectContaining({
+        value: basicResTargetWeight.toString(),
+        comparator: '',
+        unit: undefined
+      })
+    );
   }
 };
 
@@ -172,7 +178,7 @@ export const QuantityBasicComparatorResponse: Story = {
     questionnaireResponse: qrQuantityBasicComparatorResponse
   },
   play: async ({ canvasElement }) => {
-    const resultComparator = await inputQuantityText(
+    const resultComparator = await getQuantityTextValues(
       canvasElement,
       basicResComparatorLinkId,
       false
@@ -181,7 +187,8 @@ export const QuantityBasicComparatorResponse: Story = {
     expect(resultComparator).toEqual(
       expect.objectContaining({
         value: basicResComparatorTargetWeight.toString(),
-        comparator: basicResTargetComparator
+        comparator: basicResTargetComparator,
+        unit: undefined
       })
     );
   }
@@ -207,7 +214,13 @@ export const QuantitySingleUnit: Story = {
     await waitFor(async () => {
       const result = await getAnswers(singleUnitLinkId);
       expect(result).toHaveLength(1);
-      expect(result[0].valueQuantity.value).toBe(singleTargetNumber);
+      expect(result[0].valueQuantity).toEqual(
+        expect.objectContaining({
+          value: singleTargetNumber,
+          unit: undefined,
+          comparator: undefined
+        })
+      );
     });
   }
 };
@@ -220,10 +233,7 @@ const qQuantityMulti = questionnaireFactory([
   {
     linkId: multiLinkId,
     type: 'quantity',
-    extension: [
-      questionnaireUnitOptionFactory('d', 'Day(s)'),
-      questionnaireUnitOptionFactory('wk', multiTargetUnit)
-    ]
+    extension: [unitOptionExtFactory('d', 'Day(s)'), unitOptionExtFactory('wk', multiTargetUnit)]
   }
 ]);
 
@@ -240,7 +250,8 @@ export const QuantityMultiUnit: Story = {
       expect(result[0].valueQuantity).toEqual(
         expect.objectContaining({
           value: multiTargetNumber,
-          unit: multiTargetUnit
+          unit: multiTargetUnit,
+          comparator: undefined
         })
       );
     });
@@ -257,8 +268,8 @@ const qQuantityMultiComparator = questionnaireFactory([
     linkId: multiComparatorLinkId,
     type: 'quantity',
     extension: [
-      questionnaireUnitOptionFactory('d', multiComparatorTargetUnit),
-      questionnaireUnitOptionFactory('wk', 'Week(s)')
+      unitOptionExtFactory('d', multiComparatorTargetUnit),
+      unitOptionExtFactory('wk', 'Week(s)')
     ]
   }
 ]);
@@ -290,7 +301,7 @@ export const QuantityMultiUnitComparator: Story = {
   }
 };
 const unitsingleResLinkId = 'duration-single-unit';
-const unitsingleCoding = {
+const unitsingleQuantity: Quantity = {
   value: 2,
   unit: 'Day(s)',
   system: 'http://unitsofmeasure.org',
@@ -299,21 +310,21 @@ const unitsingleCoding = {
 const qrQuantityUnitOptionSingleResponse = qrFactory([
   {
     linkId: unitsingleResLinkId,
-    answer: [{ valueQuantity: unitsingleCoding }]
+    answer: [{ valueQuantity: unitsingleQuantity }]
   }
 ]);
 
-export const QuantityUnitOptionResponseSingle: Story = {
+export const QuantitySingleUnitOptionResponse: Story = {
   args: {
     questionnaire: qQuantitySingle,
     questionnaireResponse: qrQuantityUnitOptionSingleResponse
   },
   play: async ({ canvasElement }) => {
-    const resultSingle = await inputQuantityText(canvasElement, unitsingleResLinkId, false);
+    const resultSingle = await getQuantityTextValues(canvasElement, unitsingleResLinkId, false);
 
     expect(resultSingle).toEqual(
       expect.objectContaining({
-        value: unitsingleCoding.value.toString(),
+        value: unitsingleQuantity?.value?.toString(),
         unit: undefined,
         comparator: ''
       })
@@ -322,7 +333,7 @@ export const QuantityUnitOptionResponseSingle: Story = {
 };
 
 const unitmultiResLinkId = 'duration-multi-unit';
-const unitmultiResCoding = {
+const unitmultiResQuantity: Quantity = {
   value: 48,
   unit: 'Hour(s)',
   system: 'http://unitsofmeasure.org',
@@ -331,21 +342,21 @@ const unitmultiResCoding = {
 const qrQuantityUnitOptionMultiResponse = qrFactory([
   {
     linkId: unitmultiResLinkId,
-    answer: [{ valueQuantity: unitmultiResCoding }]
+    answer: [{ valueQuantity: unitmultiResQuantity }]
   }
 ]);
 
-export const QuantityUnitOptionResponseMulti: Story = {
+export const QuantityMultiUnitOptionResponse: Story = {
   args: {
     questionnaire: qQuantityMulti,
     questionnaireResponse: qrQuantityUnitOptionMultiResponse
   },
   play: async ({ canvasElement }) => {
-    const resultMulti = await inputQuantityText(canvasElement, unitmultiResLinkId, true);
+    const resultMulti = await getQuantityTextValues(canvasElement, unitmultiResLinkId, true);
     expect(resultMulti).toEqual(
       expect.objectContaining({
-        value: unitmultiResCoding.value.toString(),
-        unit: unitmultiResCoding.unit,
+        value: unitmultiResQuantity?.value?.toString(),
+        unit: unitmultiResQuantity.unit,
         comparator: ''
       })
     );
@@ -353,7 +364,7 @@ export const QuantityUnitOptionResponseMulti: Story = {
 };
 
 const unitmultiComparatorResLinkId = 'duration-multi-unit-comparator';
-const unitMultiComparatorCoding: Quantity = {
+const unitMultiComparatorQuantity: Quantity = {
   value: 48,
   comparator: '>=',
   unit: 'Hour(s)',
@@ -364,26 +375,26 @@ const unitMultiComparatorCoding: Quantity = {
 const qrQuantityUnitOptionMultiComparatorResponse = qrFactory([
   {
     linkId: unitmultiComparatorResLinkId,
-    answer: [{ valueQuantity: unitMultiComparatorCoding }]
+    answer: [{ valueQuantity: unitMultiComparatorQuantity }]
   }
 ]);
 
-export const QuantityUnitOptionResponseMultiComparator: Story = {
+export const QuantityMultiUnitOptionComparatorResponse: Story = {
   args: {
     questionnaire: qQuantityMultiComparator,
     questionnaireResponse: qrQuantityUnitOptionMultiComparatorResponse
   },
   play: async ({ canvasElement }) => {
-    const resultMultiComparator = await inputQuantityText(
+    const resultMultiComparator = await getQuantityTextValues(
       canvasElement,
       unitmultiComparatorResLinkId,
       true
     );
     expect(resultMultiComparator).toEqual(
       expect.objectContaining({
-        value: unitMultiComparatorCoding.value?.toString(),
-        unit: unitMultiComparatorCoding.unit,
-        comparator: unitMultiComparatorCoding.comparator
+        value: unitMultiComparatorQuantity.value?.toString(),
+        unit: unitMultiComparatorQuantity.unit,
+        comparator: unitMultiComparatorQuantity.comparator
       })
     );
   }

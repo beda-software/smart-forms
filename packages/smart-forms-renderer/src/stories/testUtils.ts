@@ -86,7 +86,7 @@ export function variableExtFactory(name: string, text: string): Extension {
   };
 }
 
-export function questionnaireUnitOptionFactory(code: string, display: string): Extension {
+export function unitOptionExtFactory(code: string, display: string): Extension {
   return {
     url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption',
     valueCoding: {
@@ -96,7 +96,7 @@ export function questionnaireUnitOptionFactory(code: string, display: string): E
     }
   };
 }
-export function questionnaireUnitFactory(code: string, display: string): Extension {
+export function unitExtFactory(code: string, display: string): Extension {
   return {
     url: 'http://hl7.org/fhir/StructureDefinition/questionnaire-unit',
     valueCoding: {
