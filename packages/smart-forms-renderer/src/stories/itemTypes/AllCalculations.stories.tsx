@@ -7,12 +7,10 @@ import {
   getGroupAnswers,
   itemControlExtFactory,
   questionnaireFactory,
-  questionnaireUnitFactory,
-  sqfExpressionFactory,
   variableExtFactory
 } from '../testUtils';
-import { chooseSelectOption, inputDecimal, inputInteger, inputText } from '@aehrc/testing-toolkit';
-import { expect, waitFor, screen } from 'storybook/test';
+import { chooseSelectOption, inputDecimal, inputText } from '@aehrc/testing-toolkit';
+import { expect, waitFor } from 'storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -219,10 +217,7 @@ const qCalculatedExpressionBMICalculator = questionnaireFactory([
         readOnly: false
       },
       {
-        extension: [
-          calculatedExpressionExtFactory('(%weight/((%height/100).power(2))).round(1)'),
-          questionnaireUnitFactory('kg/m2', 'kg/m2')
-        ],
+        extension: [calculatedExpressionExtFactory('(%weight/((%height/100).power(2))).round(1)')],
         linkId: bmiLinkIdCalc,
         text: 'Value',
         type: 'decimal',
@@ -233,7 +228,7 @@ const qCalculatedExpressionBMICalculator = questionnaireFactory([
 ]);
 const heightTarget = 100;
 const weightTarget = 10;
-const bmiResult = 10;
+const bmiResultCalc = 10;
 
 export const DecimalCalculation: Story = {
   args: {
@@ -246,104 +241,107 @@ export const DecimalCalculation: Story = {
     await waitFor(async () => {
       const result = await getGroupAnswers(bmiGroupLinkId, bmiLinkIdCalc);
       expect(result).toHaveLength(1);
-      expect(result[0].valueDecimal).toBe(bmiResult);
+      expect(result[0].valueDecimal).toBe(bmiResultCalc);
     });
   }
 };
-const displayTargetLinkId = 'gender-controller';
-const genderTargetCoding = {
+
+const stringCalculationLinkId = 'gender-controller';
+const stringCalcCalculationLinkId = 'gender-string';
+const stringTargetCoding = {
   system: 'http://hl7.org/fhir/administrative-gender',
-  code: 'Female',
-  display: 'Female'
+  code: 'Male',
+  display: 'Male'
 };
-const qDisplayCalculation = questionnaireFactory(
+const qStringCalculation = questionnaireFactory(
   [
     {
-      linkId: displayTargetLinkId,
+      linkId: stringCalculationLinkId,
       type: 'choice',
       answerOption: [
         {
-          valueCoding: genderTargetCoding
-        },
-        {
           valueCoding: {
             system: 'http://hl7.org/fhir/administrative-gender',
-            code: 'Male',
-            display: 'Male'
+            code: 'Female',
+            display: 'Female'
           }
+        },
+        {
+          valueCoding: stringTargetCoding
         }
       ]
     },
     {
-      linkId: 'gender-display',
-      type: 'display',
-      _text: {
-        extension: [sqfExpressionFactory("'Gender: '+ %gender")]
-      }
+      extension: [calculatedExpressionExtFactory('%gender')],
+      linkId: stringCalcCalculationLinkId,
+      type: 'string',
+      readOnly: true
     }
   ],
   {
     extension: [
       variableExtFactory(
         'gender',
-        `item.where(linkId = '${displayTargetLinkId}').answer.valueCoding.code`
+        `item.where(linkId = '${stringCalculationLinkId}').answer.valueCoding.code`
       )
     ]
   }
 );
-const displayTargetText = 'Gender: ' + genderTargetCoding.display;
 
-export const DisplayCalculation: Story = {
+export const StringCalculation: Story = {
   args: {
-    questionnaire: qDisplayCalculation
+    questionnaire: qStringCalculation
   },
   play: async ({ canvasElement }) => {
-    await chooseSelectOption(canvasElement, displayTargetLinkId, genderTargetCoding.display);
+    await chooseSelectOption(canvasElement, stringCalculationLinkId, stringTargetCoding.display);
 
-    expect(screen.queryByText(displayTargetText)).toBeDefined();
+    await waitFor(async () => {
+      const result = await getAnswers(stringCalcCalculationLinkId);
+      expect(result).toHaveLength(1);
+      expect(result[0].valueString).toBe(stringTargetCoding.display);
+    });
   }
 };
 
-const integerLinkId = 'length-controller';
-const qIntegerCalculation = questionnaireFactory(
+const detailsLinkId = 'medications-details';
+const detailsCalcLinkId = 'medication-summary';
+const textTargetText = 'Hello world';
+
+const qTextCalculation = questionnaireFactory(
   [
     {
-      extension: [questionnaireUnitFactory('cm', 'cm')],
-      linkId: integerLinkId,
-      type: 'integer'
+      linkId: detailsLinkId,
+      type: 'text',
+      readOnly: false
     },
     {
-      extension: [
-        calculatedExpressionExtFactory('%length.power(2)'),
-        questionnaireUnitFactory('cm2', 'cm2')
-      ],
-      linkId: 'length-squared',
-      type: 'integer',
+      extension: [calculatedExpressionExtFactory('%medicationDetails')],
+      linkId: detailsCalcLinkId,
+      type: 'text',
       readOnly: true
     }
   ],
   {
     extension: [
-      variableExtFactory('length', `item.where(linkId = '${integerLinkId}').answer.value`)
+      variableExtFactory(
+        'medicationDetails',
+        `item.where((linkId = '${detailsLinkId}')).answer.value`
+      )
     ]
   }
 );
 
-const integerTargetNumber = 2;
-const integerTargetNumberCalc = 4;
-const integerLinkIdCalc = 'length-squared';
-
-export const IntegerCalculation: Story = {
+export const TextCalculation: Story = {
   args: {
-    questionnaire: qIntegerCalculation
+    questionnaire: qTextCalculation
   },
   play: async ({ canvasElement }) => {
-    await inputInteger(canvasElement, integerLinkId, integerTargetNumber);
+    await inputText(canvasElement, detailsLinkId, textTargetText);
 
     await waitFor(async () => {
-      const result = await getAnswers(integerLinkIdCalc);
+      const result = await getAnswers(detailsCalcLinkId);
       expect(result).toHaveLength(1);
-      expect(result[0].valueInteger).toBe(integerTargetNumberCalc);
+      expect(result[0].valueString).toBe(textTargetText);
     });
   }
 };
