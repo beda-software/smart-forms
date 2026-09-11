@@ -1,10 +1,9 @@
 import type { Patient, Questionnaire } from 'fhir/r4';
-import type { BehavioralTestWrapperProps } from '../behavioralTestUtils';
-import { BehavioralTestWrapper } from '../behavioralTestUtils';
-import gpccmpForm from './data/resources/Questionnaire/Questionnaire-GPChronicConditionManagementPlanAssembled.json';
-import { vi } from 'vitest';
+import type { BehavioralTestWrapperProps } from '@aehrc/questionnaire-test-toolkit';
+import { BehavioralTestWrapper } from '@aehrc/questionnaire-test-toolkit';
+import gpccmpForm from '../questionnaire/Questionnaire-GPChronicConditionManagementPlanAssembled.json';
 import { render, waitFor } from '@testing-library/react';
-import { getBirthDateForAge, getInputText, selectTab } from '../testUtils';
+import { getBirthDateForAge, getInputText, selectTab } from '@aehrc/questionnaire-test-toolkit';
 
 export const patient: Patient = {
   resourceType: 'Patient',
@@ -27,20 +26,6 @@ export const patient: Patient = {
 function GpccmpForm(props: Omit<BehavioralTestWrapperProps, 'questionnaire'>) {
   return <BehavioralTestWrapper questionnaire={gpccmpForm as Questionnaire} {...props} />;
 }
-
-vi.mock('fhirclient', () => ({
-  client: () => ({
-    request: vi.fn(() => Promise.resolve({}))
-  })
-}));
-
-beforeAll(() => {
-  globalThis.ResizeObserver = class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  };
-});
 
 describe('Population workflow for', () => {
   test('Patient details', async () => {
