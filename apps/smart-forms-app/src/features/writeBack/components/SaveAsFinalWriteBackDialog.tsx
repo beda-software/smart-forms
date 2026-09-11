@@ -18,33 +18,40 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import { saveProgress } from '../../../../api/saveQr.ts';
+import { saveProgress } from '../../../api/saveQr.ts';
 import { useQuestionnaireResponseStore, useQuestionnaireStore } from '@aehrc/smart-forms-renderer';
-import useSmartClient from '../../../../hooks/useSmartClient.ts';
+import useSmartClient from '../../../hooks/useSmartClient.ts';
 import {
   saveAsFinalSuccessMessage,
   saveErrorMessage
-} from '../../../../interfaces/snackbar.interface.ts';
-import CloseSnackbar from '../../../../components/Snackbar/CloseSnackbar.tsx';
+} from '../../../interfaces/snackbar.interface.ts';
+import CloseSnackbar from '../../../components/Snackbar/CloseSnackbar.tsx';
 import type { Bundle } from 'fhir/r4';
-import { HEADERS } from '../../../../api/headers.ts';
-import WriteBackBundleSelectorDialog from '../../../writeBack/components/WriteBackBundleSelectorDialog.tsx';
-import type { SavingWriteBackMode } from '../../utils/extract.ts';
-import { responseIsOperationOutcome } from '../../../../utils/operationOutcome.ts';
+import { HEADERS } from '../../../api/headers.ts';
+import WriteBackBundleSelectorDialog from './WriteBackBundleSelectorDialog.tsx';
+import type { SavingWriteBackMode } from '../../renderer/utils/extract.ts';
+import { responseIsOperationOutcome } from '../../../utils/operationOutcome.ts';
 
-export interface RendererSaveAsFinalWriteBackDialogProps {
+export interface SaveAsFinalWriteBackDialogProps {
   dialogOpen: boolean;
   isAmendment: boolean;
   extractedBundle: Bundle;
+  invalidBundleEntryIndices?: Set<number>;
   onCloseDialog: () => unknown;
   onDialogExited: () => unknown;
 }
 
-function RendererSaveAsFinalWriteBackDialog(props: RendererSaveAsFinalWriteBackDialogProps) {
-  const { dialogOpen, isAmendment, extractedBundle, onCloseDialog, onDialogExited } = props;
+function SaveAsFinalWriteBackDialog(props: SaveAsFinalWriteBackDialogProps) {
+  const {
+    dialogOpen,
+    isAmendment,
+    extractedBundle,
+    invalidBundleEntryIndices,
+    onCloseDialog,
+    onDialogExited
+  } = props;
 
-  const { smartClient, patient, user, launchQuestionnaire, disableWriteBackSelection } =
-    useSmartClient();
+  const { smartClient, patient, user, launchQuestionnaire, extraLaunchContext } = useSmartClient();
 
   const sourceQuestionnaire = useQuestionnaireStore.use.sourceQuestionnaire();
   const updatableResponse = useQuestionnaireResponseStore.use.updatableResponse();
@@ -175,7 +182,8 @@ function RendererSaveAsFinalWriteBackDialog(props: RendererSaveAsFinalWriteBackD
       isSaving={isSaving}
       isAmendment={isAmendment}
       extractedBundle={extractedBundle}
-      disableWriteBackSelection={disableWriteBackSelection}
+      invalidBundleEntryIndices={invalidBundleEntryIndices}
+      disableWriteBackSelection={extraLaunchContext.disableWriteBackSelection}
       onCloseDialog={handleClose}
       onWriteBackBundle={async (bundleToWriteBack, savingWriteBackMode) => {
         if (savingWriteBackMode === 'saving-only') {
@@ -189,4 +197,4 @@ function RendererSaveAsFinalWriteBackDialog(props: RendererSaveAsFinalWriteBackD
   );
 }
 
-export default RendererSaveAsFinalWriteBackDialog;
+export default SaveAsFinalWriteBackDialog;

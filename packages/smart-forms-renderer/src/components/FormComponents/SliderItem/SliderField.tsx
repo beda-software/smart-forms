@@ -37,6 +37,7 @@ interface SliderFieldProps extends PropsWithIsTabledAttribute {
   stepValue: number;
   isInteracted: boolean;
   feedback: string;
+  feedbackSeverity?: 'error' | 'warning';
   readOnly: boolean;
   instructionsId?: string;
   onValueChange: (newValue: number) => void;
@@ -55,6 +56,7 @@ function SliderField(props: SliderFieldProps) {
     maxLabel,
     isInteracted,
     feedback,
+    feedbackSeverity,
     readOnly,
     instructionsId,
     isTabled,
@@ -63,6 +65,7 @@ function SliderField(props: SliderFieldProps) {
 
   const readOnlyVisualStyle = useRendererConfigStore.use.readOnlyVisualStyle();
   const textFieldWidth = useRendererConfigStore.use.textFieldWidth();
+  const rendererStrings = useRendererConfigStore.use.rendererStrings();
 
   const sliderMarks = getSliderMarks(minValue, maxValue, minLabel, maxLabel, stepValue);
 
@@ -100,7 +103,7 @@ function SliderField(props: SliderFieldProps) {
           readOnly={readOnly && readOnlyVisualStyle === 'readonly'}
           aria-readonly={readOnly && readOnlyVisualStyle === 'readonly'}
           {...(!isTabled && { 'aria-labelledby': `label-${linkId}` })}
-          {...(isTabled && { 'aria-label': itemText ?? 'Unnamed slider' })}
+          {...(isTabled && { 'aria-label': itemText ?? rendererStrings.unnamedSlider })}
           {...(instructionsId
             ? { slotProps: { input: { 'aria-describedby': instructionsId } } }
             : {})}
@@ -109,7 +112,12 @@ function SliderField(props: SliderFieldProps) {
         />
       </Stack>
 
-      {feedback ? <StyledRequiredTypography>{feedback}</StyledRequiredTypography> : null}
+      {feedback ? (
+        <StyledRequiredTypography
+          sx={feedbackSeverity === 'warning' ? { color: 'warning.main' } : undefined}>
+          {feedback}
+        </StyledRequiredTypography>
+      ) : null}
     </>
   );
 }
