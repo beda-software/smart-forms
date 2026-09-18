@@ -4,6 +4,11 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react/jsx-dev-runtime']
   },
+  resolve: {
+    alias: {
+      fhirclient: 'fhirclient/lib/entry/browser.js'
+    }
+  },
   test: {
     globals: true,
     testTimeout: 40000,

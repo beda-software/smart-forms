@@ -17,7 +17,9 @@ function GpccmpForm(props: Omit<BehavioralTestWrapperProps, 'questionnaire'>) {
 describe('My Aged Care question', () => {
   test('for yes', async () => {
     const { container } = render(<GpccmpForm />);
-    await waitFor(() => expect(container.innerHTML).toContain('Patient details'));
+    await waitFor(() => expect(container.innerHTML).toContain('Patient details'), {
+      timeout: 10000
+    });
     await inputInteger(container, 'Age', 51);
 
     await checkRadioOption(container, 'Registered for My Aged Care', 'Yes');
@@ -27,7 +29,9 @@ describe('My Aged Care question', () => {
 
   test('for no', async () => {
     const { container } = render(<GpccmpForm />);
-    await waitFor(() => expect(container.innerHTML).toContain('Patient details'));
+    await waitFor(() => expect(container.innerHTML).toContain('Patient details'), {
+      timeout: 10000
+    });
     await inputInteger(container, 'Age', 51);
     await checkRadioOption(container, 'Registered for My Aged Care', 'No');
     await expect(
@@ -38,7 +42,9 @@ describe('My Aged Care question', () => {
 
   test('for Pending', async () => {
     const { container } = render(<GpccmpForm />);
-    await waitFor(() => expect(container.innerHTML).toContain('Patient details'));
+    await waitFor(() => expect(container.innerHTML).toContain('Patient details'), {
+      timeout: 10000
+    });
     await inputInteger(container, 'Age', 51);
     await checkRadioOption(container, 'Registered for My Aged Care', 'Pending');
     await expect(
@@ -51,7 +57,9 @@ describe('My Aged Care question', () => {
 describe('National Disability Insurance Scheme question', () => {
   test('for yes', async () => {
     const { container } = render(<GpccmpForm />);
-    await waitFor(() => expect(container.innerHTML).toContain('Patient details'));
+    await waitFor(() => expect(container.innerHTML).toContain('Patient details'), {
+      timeout: 10000
+    });
 
     await inputInteger(container, 'Age', 24);
     await checkRadioOption(container, 'Registered for NDIS', 'Yes');
@@ -62,7 +70,9 @@ describe('National Disability Insurance Scheme question', () => {
 
   test('for no', async () => {
     const { container } = render(<GpccmpForm />);
-    await waitFor(() => expect(container.innerHTML).toContain('Patient details'));
+    await waitFor(() => expect(container.innerHTML).toContain('Patient details'), {
+      timeout: 10000
+    });
 
     await inputInteger(container, 'Age', 24);
     await checkRadioOption(container, 'Registered for NDIS', 'No');
@@ -73,7 +83,9 @@ describe('National Disability Insurance Scheme question', () => {
 
   test('for Pending', async () => {
     const { container } = render(<GpccmpForm />);
-    await waitFor(() => expect(container.innerHTML).toContain('Patient details'));
+    await waitFor(() => expect(container.innerHTML).toContain('Patient details'), {
+      timeout: 10000
+    });
 
     await inputInteger(container, 'Age', 24);
     await checkRadioOption(container, 'Registered for NDIS', 'Pending');

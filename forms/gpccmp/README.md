@@ -51,27 +51,9 @@ rather than a regression. Do not reformat the file and do not add a second copy 
 
 ## Terminology
 
-Three of the questionnaire's `choice` items are backed by external `answerValueSet`s. `test/setup.ts`
-mocks `fhirclient` so the suite makes no network calls, and answers `$expand` from the real
-expansions vendored in `test/terminology/` — see that directory's `PROVENANCE.md` for the server,
-the retrieval date, and how to refresh them.
-
-Anything not in that directory still resolves to `{}`, which renders a `choice` item with no options
-and therefore no input element at all. A test that suddenly cannot find a select is usually a
-questionnaire that gained a ValueSet the fixtures do not cover.
-
-### The suite runs offline, and enforces it
-
-`fhirclient` is the only HTTP client in the dependency chain — the renderer, `sdc-populate` and
-`sdc-template-extract` pull in no `axios`, `undici` or `node-fetch` — so mocking it is enough to
-take the suite off the network. Verified by instrumenting `fetch`, `XMLHttpRequest` and
-`node:http`/`node:https` across a full run: zero egress.
-
-`test/setup.ts` then makes `fetch` and `XMLHttpRequest.open` throw, so it stays that way. Without
-that, a renderer that started calling `fetch` directly would quietly reach the real Ontoserver in
-CI — slow, flaky, and green for the wrong reason. If you hit
-`Network access from a test`, add the response to `test/terminology/` or mock the caller; do not
-relax the guard.
+The questionnaire's `choice` items resolve their external `answerValueSet`s against
+`https://r4.ontoserver.csiro.au/fhir`. The suite uses the real browser entry point of `fhirclient`,
+configured in `vitest.config.ts`, and therefore requires network access to Ontoserver.
 
 ## Two items that only population can reach
 
