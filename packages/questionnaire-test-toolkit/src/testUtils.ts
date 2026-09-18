@@ -154,6 +154,10 @@ export async function selectTab(canvasElement: HTMLElement, linkId: string) {
     throw new Error(`Tab was not found inside ${`[data-linkid=${linkId}] block`}`);
   }
 
+  if (button.getAttribute('aria-expanded') === 'true') {
+    return;
+  }
+
   await act(async () => {
     fireEvent.click(button);
   });

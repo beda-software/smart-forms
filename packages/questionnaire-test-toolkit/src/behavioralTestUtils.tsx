@@ -38,7 +38,7 @@ import type { BehavioralTestWrapperProps, RequestDefinition } from './behavioral
  * server. The rendered response can be extracted through the Save button exposed by the wrapper.
  */
 export function BehavioralTestWrapper(props: BehavioralTestWrapperProps) {
-  const { questionnaire, patient, requestDefinitions } = props;
+  const { questionnaire, patient, user, fhirContext, requestDefinitions } = props;
   const queryClient = useRendererQueryClient();
   const [isPopulating, setIsPopulating] = useState(false);
 
@@ -54,6 +54,8 @@ export function BehavioralTestWrapper(props: BehavioralTestWrapperProps) {
         const result = await populateQuestionnaire({
           questionnaire,
           patient,
+          user,
+          fhirContext,
           fetchResourceCallback: buildFetchResourceCallback(requestDefinitions ?? []),
           fetchResourceRequestConfig: { sourceServerUrl: 'http://mock.example' }
         });
@@ -71,6 +73,7 @@ export function BehavioralTestWrapper(props: BehavioralTestWrapperProps) {
           terminologyServerUrl,
           additionalContext: {
             patient,
+            user,
             ...populatedContext
           }
         });
@@ -85,7 +88,7 @@ export function BehavioralTestWrapper(props: BehavioralTestWrapperProps) {
     };
 
     void load();
-  }, [questionnaire, patient, requestDefinitions]);
+  }, [questionnaire, patient, user, fhirContext, requestDefinitions]);
 
   if (isPopulating) {
     return <div>Loading...</div>;
